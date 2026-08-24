@@ -13,7 +13,7 @@ PHP пошел по другому пути. Пытаясь скопироват
 ## Установить
 
 ```
-composer require gzhegow/router
+composer require gzhegow/ret
 ```
 
 ## Запустить тесты

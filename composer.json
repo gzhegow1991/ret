@@ -1,0 +1,41 @@
+{
+  "name": "gzhegow/ret",
+  "type": "library",
+  "license": "MIT",
+
+  "authors": [
+    {
+      "name": "gzhegow",
+      "email": "6562680@gmail.com"
+    }
+  ],
+
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+
+  "autoload": {
+    "psr-4": {
+      "Gzhegow\\Ret\\": "src/"
+    },
+    "exclude-from-classmap": [
+      "tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Gzhegow\\Ret\\Tests\\": "tests/src/"
+    }
+  },
+
+  "require": {
+    "php": "^7.3|^8.0",
+
+    "gzhegow/lib": "^1.0"
+  },
+
+  "config": {
+    "optimize-autoloader": true,
+
+    "sort-packages": false
+  }
+}

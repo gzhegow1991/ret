@@ -1,0 +1,8 @@
+/.idea/
+/.editorconfig
+
+/vendor/
+/composer.lock
+
+/_old/
+/_new/

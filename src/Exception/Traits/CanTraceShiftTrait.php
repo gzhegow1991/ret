@@ -2,7 +2,6 @@
 
 namespace Gzhegow\Ret\Exception\Traits;
 
-
 use Gzhegow\Ret\Exception\RuntimeException;
 
 

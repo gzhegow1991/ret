@@ -2,8 +2,9 @@
 
 namespace Gzhegow\Ret\Core\Ret;
 
-use Gzhegow\Ret\Core\Error\ErrorInterface;
 use Gzhegow\Ret\Exception\LogicException;
+use Gzhegow\Ret\Core\Error\ErrorInterface;
+use Gzhegow\Ret\Exception\RuntimeException;
 
 
 class RetWrapper
@@ -50,6 +51,9 @@ class RetWrapper
         return $this;
     }
 
+    /**
+     * @param string[] $classes
+     */
     public function failIfClass(array $classes)
     {
         foreach ( $classes as $i => $c ) {
@@ -65,6 +69,9 @@ class RetWrapper
         return $this;
     }
 
+    /**
+     * @param string[] $classes
+     */
     public function failIfInstanceOf(array $classes)
     {
         foreach ( $classes as $i => $c ) {
@@ -156,17 +163,20 @@ class RetWrapper
         return null;
     }
 
-    /**
-     * @param callable $fn
-     * @param array    $fnArgs
-     *
-     * @return static
-     */
     protected function runFailIfCallback($fn, array $fnArgs = [])
     {
         array_unshift($fnArgs, $this->value);
 
-        return call_user_func_array($fn, $fnArgs);
+        $ret = call_user_func_array($fn, $fnArgs);
+
+        if ( null === $ret ) {
+            return null;
+
+        } elseif ( ($ret instanceof Ret) && $ret->isFail() ) {
+            return $ret;
+        }
+
+        throw new RuntimeException([ 'The `fn` must return failed Ret or NULL', $fn, $fnArgs ]);
     }
 
 
@@ -219,14 +229,10 @@ class RetWrapper
             $fn = array_shift($rule);
             $fnArgs = $rule;
 
-            $result = call_user_func_array([ $instance, $fn ], $fnArgs);
+            $ret = call_user_func_array([ $instance, $fn ], $fnArgs);
 
-            if ( $result instanceof Ret ) {
-                return $result;
-            }
-
-            if ( $result instanceof ErrorInterface ) {
-                return Ret::fail($result);
+            if ( ($ret instanceof Ret) && $ret->isFail() ) {
+                return $ret;
             }
         }
 

@@ -2,8 +2,9 @@
 
 namespace Gzhegow\Ret\Core\ErrorBag;
 
-use Gzhegow\Ret\Core\Error\ErrorInterface;
+use Gzhegow\Ret\Core\Err;
 use Gzhegow\Ret\Exception\LogicException;
+use Gzhegow\Ret\Core\Error\ErrorInterface;
 use Gzhegow\Ret\Core\Error\SingleErrorInterface;
 use Gzhegow\Ret\Core\Error\AggregateErrorInterface;
 
@@ -88,7 +89,11 @@ class ErrorBag implements ErrorBagInterface
             ? []
             : $this->buildTagsIndex($tags);
 
-        $stack = [ $parent ];
+        /**
+         * @var ErrorInterface[] $stack
+         */
+        $stack = [];
+        $stack[] = $parent;
 
         while ( [] !== $stack ) {
             $current = array_pop($stack);
@@ -106,7 +111,9 @@ class ErrorBag implements ErrorBagInterface
                     $this->tags[$currentSplId] = $tagsIndex;
                 }
 
-                foreach ( array_reverse($current->children) as $e ) {
+                $errorsReversed = array_reverse($current->errors, true);
+
+                foreach ( $errorsReversed as $e ) {
                     $stack[] = $e;
                 }
 
@@ -120,6 +127,12 @@ class ErrorBag implements ErrorBagInterface
 
                 } else {
                     $this->tags[$currentSplId] = $tagsIndex;
+                }
+
+                if ( null !== $current->throwable ) {
+                    if ( $ex = $current->throwable->getPrevious() ) {
+                        $stack[] = Err::wrap($ex);
+                    }
                 }
             }
         }
@@ -324,7 +337,7 @@ class ErrorBag implements ErrorBagInterface
 
             if ( ! (is_string($tag) && ('' !== $tag)) ) {
                 throw new LogicException(
-                    [ 'Each of `tags` should string, not-empty', $tag, $tags ]
+                    [ 'Each of `tags` should string, not-empty', $i, $tags ]
                 );
             }
 
@@ -338,15 +351,18 @@ class ErrorBag implements ErrorBagInterface
     {
         $tagsFilterIndex = [];
 
-        foreach ( $tagFilter as $tag => $bool ) {
-            if ( is_int($tag) ) {
+        foreach ( $tagFilter as $i => $bool ) {
+            if ( ! is_int($i) ) {
+                $tag = $i;
+
+            } else {
                 $tag = $bool;
                 $bool = true;
             }
 
             if ( ! (is_string($tag) && ('' !== $tag)) ) {
                 throw new LogicException(
-                    [ 'Each of `tags` should string, not-empty', $tag, $tagFilter ]
+                    [ 'Each of `tags` should string, not-empty', $i, $tagFilter ]
                 );
             }
 

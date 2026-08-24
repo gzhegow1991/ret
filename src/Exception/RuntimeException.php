@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Ret\Exception;
 
-use Gzhegow\Ret\Core\Error\Err;
+use Gzhegow\Ret\Core\Err;
 use Gzhegow\Ret\Core\Error\MainErrorInterface;
 
 
@@ -27,7 +27,7 @@ class RuntimeException extends \RuntimeException implements MainExceptionInterfa
             return $ex;
         }
 
-        $instance = new static($err->getMessageArray(), $ex);
+        $instance = new static(Err::getMessage($err), $ex);
         $instance->traceShift(1);
 
         return $instance;

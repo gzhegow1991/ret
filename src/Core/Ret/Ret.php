@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Ret\Core\Ret;
 
-use Gzhegow\Ret\Core\Error\Err;
+use Gzhegow\Ret\Core\Err;
 use Gzhegow\Ret\Core\ErrorBag\ErrorBag;
 use Gzhegow\Ret\Exception\LogicException;
 use Gzhegow\Ret\Core\Error\ErrorInterface;
@@ -220,6 +220,20 @@ class Ret
         return $this->errors;
     }
 
+    /**
+     * @return \Generator<array, \Gzhegow\Ret\Core\Error\ErrorInterface[]>
+     */
+    public function getErrorsRecursive() : iterable
+    {
+        if ( [] === $this->errors ) {
+            throw new RuntimeException('The `ret` contains no errors');
+        }
+
+        $agg = Err::aggregate($this->errors);
+
+        return Err::getChildrenRecursive($agg);
+    }
+
 
     /**
      * @return T|null
@@ -296,18 +310,6 @@ class Ret
         }
 
         return $default;
-    }
-
-    /**
-     * @template TT
-     *
-     * @param TT $default
-     *
-     * @return T|TT
-     */
-    public function orDefault($default, ?self $mergeTo = null)
-    {
-        return $this->orFallback($default, $default, $mergeTo);
     }
 
     /**
@@ -400,7 +402,7 @@ class Ret
         $value = null;
         $errors = [];
 
-        foreach ( $rets as $i => $ret ) {
+        foreach ( $rets as $ret ) {
             if ( [] !== $ret->errors ) {
                 $errors = array_merge($errors, $ret->errors);
             }
@@ -550,9 +552,11 @@ class Ret
 
         if ( null !== $wrapper ) {
             $result = $wrapper->run($result);
+
+            return Ret::pass($result);
         }
 
-        return Ret::pass($result);
+        return Ret::ok($result);
     }
 
     /**

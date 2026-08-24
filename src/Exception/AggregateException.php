@@ -2,7 +2,8 @@
 
 namespace Gzhegow\Ret\Exception;
 
-use Gzhegow\Ret\Core\Error\Err;
+use Gzhegow\Ret\Core\Err;
+use Gzhegow\Ret\Core\ErrorMessage\ErrorMessage;
 use Gzhegow\Ret\Core\Error\ErrorInterface;
 use Gzhegow\Ret\Core\Error\AggregateErrorInterface;
 
@@ -23,7 +24,7 @@ class AggregateException extends \Exception implements AggregateExceptionInterfa
             }
         }
 
-        $instance = new static($err->children ?? [], $err->getMessageArray());
+        $instance = new static($err->errors, Err::getMessage($err));
         $instance->traceShift(1);
 
         return $instance;
@@ -31,55 +32,61 @@ class AggregateException extends \Exception implements AggregateExceptionInterfa
 
 
     /**
-     * @param (\Throwable|ErrorInterface)[] $errors
+     * @param (\Throwable|ErrorInterface)[] $children
+     * @param mixed|null                    $message
      *
      * @noinspection PhpMissingParentConstructorInspection
      */
-    public function __construct(array $errors, $message = null)
+    public function __construct(array $children, $message = null)
     {
-        if ( [] === $errors ) {
+        if ( [] === $children ) {
             throw new LogicException(
-                [ 'The `errors` should be array, non-empty', $errors ]
+                [ 'The `children` should be array, non-empty', $children ]
             );
+        }
 
-        } else {
-            foreach ( $errors as $e ) {
-                if ( ! (false
-                    || $e instanceof \Throwable
-                    || $e instanceof ErrorInterface
-                ) ) {
-                    throw new LogicException(
-                        [
-                            ''
-                            . 'Each of `errors` should be instance one of: '
-                            . '[ '
-                            . implode(' ][ ', [
-                                \Throwable::class,
-                                ErrorInterface::class,
-                            ])
-                            . ' ]',
-                            //
-                            $errors,
-                        ]
-                    );
-                }
+        $errorsArray = [];
+
+        foreach ( $children as $i => $c ) {
+            if ( $c instanceof ErrorInterface ) {
+                $errorsArray[] = $c;
+
+            } elseif ( $c instanceof \Throwable ) {
+                $errorsArray[] = Err::wrap($c);
+
+            } else {
+                throw new LogicException(
+                    [
+                        ''
+                        . 'Each of `children` should be instance one of: '
+                        . '[ '
+                        . implode(' ][ ', [
+                            \Throwable::class,
+                            ErrorInterface::class,
+                        ])
+                        . ' ]',
+                        //
+                        $i,
+                        $children,
+                    ]
+                );
             }
         }
+
+        $this->errors = $errorsArray;
 
         $this->code = -1;
 
         if ( null === $message ) {
-            $this->message = "[ AGGREGATE EXCEPTION # TOTAL " . count($errors) . " ]";
+            $this->message = "[ AGGREGATE EXCEPTION # TOTAL " . count($children) . " ]";
             $this->payload = null;
 
         } else {
-            $err = Err::message($message);
+            $msg = ErrorMessage::fromMessage($message);
 
-            $this->message = $err->message;
-            $this->payload = $err->payload;
+            $this->message = $msg->message;
+            $this->payload = $msg->payload;
         }
-
-        $this->errors = $errors;
     }
 
 

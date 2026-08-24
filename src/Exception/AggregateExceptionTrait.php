@@ -2,6 +2,8 @@
 
 namespace Gzhegow\Ret\Exception;
 
+use Gzhegow\Ret\Core\Err;
+
 
 /**
  * @mixin \Throwable
@@ -14,23 +16,24 @@ trait AggregateExceptionTrait
 
 
     /**
-     * @var (\Throwable|\Gzhegow\Ret\Core\Error\ErrorInterface)[]
+     * @var \Gzhegow\Ret\Core\Error\ErrorInterface
      */
     protected $errors = [];
 
 
     /**
-     * @return (\Throwable|\Gzhegow\Ret\Core\Error\ErrorInterface)[]
+     * @return \Gzhegow\Ret\Core\Error\ErrorInterface[]
      */
     public function getErrors() : array
     {
         return $this->errors;
     }
 
-
-    public function isSameAs($value) : bool
+    /**
+     * @return \Generator<array, \Gzhegow\Ret\Core\Error\ErrorInterface[]>
+     */
+    public function getErrorsRecursive() : iterable
     {
-        // > aggregates cannot be compared
-        return false;
+        return Err::getChildrenRecursive($this);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Ret\Exception;
 
-use Gzhegow\Ret\Core\Error\Err;
+use Gzhegow\Ret\Core\Err;
 use Gzhegow\Ret\Core\Error\TriggeredErrorInterface;
 
 

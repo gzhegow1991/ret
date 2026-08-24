@@ -2,7 +2,9 @@
 
 namespace Gzhegow\Ret\Core\Error\PHP7;
 
+use Gzhegow\Ret\Exception\ExceptionInterface;
 use Gzhegow\Ret\Core\Error\TriggeredErrorInterface;
+use Gzhegow\Ret\Exception\TriggeredExceptionInterface;
 
 
 class TriggeredError extends AbstractError implements TriggeredErrorInterface
@@ -41,6 +43,10 @@ class TriggeredError extends AbstractError implements TriggeredErrorInterface
         return $instance;
     }
 
+    protected function __construct()
+    {
+    }
+
 
     /**
      * @return static
@@ -58,6 +64,10 @@ class TriggeredError extends AbstractError implements TriggeredErrorInterface
         //
         $instance->code = $e->getCode();
         $instance->message = $e->getMessage();
+
+        if ( $e instanceof TriggeredExceptionInterface ) {
+            $instance->payload = $e->getPayload();
+        }
 
         return $instance;
     }

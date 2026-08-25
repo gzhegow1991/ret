@@ -353,11 +353,11 @@ $fn = function () use ($theDebug, $testN) {
     $theDebug->dump_array([ $maybeResultMaybeError, $maybeResultMaybeError->message, $maybeResultMaybeError->payload ], 2);                    // > [ object, 'The password is invalid', [ 1 => 123 ] ]
 
     // > NAN if error, FALSE if empty
-    $maybeResultMaybeNanMaybeFalse = $ret->orFallback($fallback = NAN, $default = false);
+    $maybeResultMaybeNanMaybeFalse = $ret->orValue($valueIfError = NAN, $valueIfEmpty = [ false ]);
     $theDebug->dump_value($maybeResultMaybeNanMaybeFalse);
 
     // > NULL if error, NULL if empty
-    $maybeResultMaybeNull = $ret->orNull();
+    $maybeResultMaybeNull = $ret->orNull($valueIfEmpty = [ null ]);
     $theDebug->dump_value($maybeResultMaybeNull);
 };
 $test = $theTest->newCase($fn);

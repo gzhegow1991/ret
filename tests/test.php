@@ -2,10 +2,8 @@
 
 error_reporting(E_ALL);
 
-define('__DIR_ROOT__', __DIR__ . '/..');
 
-
-// >>> ТЕСТЫ
+// >>> TESTS
 
 $theDebug = \Gzhegow\Lib\Lib::debug();
 $theTest = \Gzhegow\Lib\Lib::test();
@@ -78,7 +76,7 @@ $fn = function () use ($theDebug, $testN) {
     echo "\n";
 
     if ( PHP_VERSION_ID >= 80100 ) {
-        require_once __DIR_ROOT__ . '/tests/src/MyEnum.php';
+        require_once __DIR__ . '/src/MyEnum.php';
 
         // > receives code and message
         $ee = [];

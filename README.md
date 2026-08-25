@@ -15,22 +15,21 @@ PHP пошел по другому пути. Пытаясь скопироват
 ## Установить
 
 ```
-composer require gzhegow/ret
+> composer require gzhegow/ret
 ```
 
 ## Запустить тесты
 
 ```
+> composer require --dev gzhegow/lib
 > touch test.php
 ```
-
 ```
 // test.php
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/vendor/gzhegow/ret/tests/test.php';
 ```
-
 ```
 > php test.php
 ```

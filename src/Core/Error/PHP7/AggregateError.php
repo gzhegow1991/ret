@@ -67,7 +67,7 @@ class AggregateError extends AbstractError implements AggregateErrorInterface
         $instance->code = -1;
 
         if ( null === $message ) {
-            $instance->message = "[ AGGREGATE ERR # TOTAL " . count($children) . " ]";
+            $instance->message = "[ AGGREGATE ERROR # TOTAL " . count($children) . " ]";
             $instance->payload = null;
 
         } else {

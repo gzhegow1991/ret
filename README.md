@@ -632,9 +632,7 @@ $fn = function () use ($theDebug, $testN) {
         $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2); // > [ object, 'The password is invalid', [ 1 => 123 ] ]
 
         foreach ( $e->getErrorsRecursive() as $path => $e ) {
-            if ( $e instanceof \Gzhegow\Ret\Core\Error\ErrorInterface ) {
-                $theDebug->dump_array([ implode('.', $path), $e, $e->message, $e->payload ], 2);
-            }
+            $theDebug->dump_array([ implode('.', $path), $e, $e->message, $e->payload ], 2);
         }
     }
 };
@@ -1022,4 +1020,3 @@ $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 ');
 $test->run();
 ```
-

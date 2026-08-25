@@ -8,7 +8,7 @@ PHP пошел по другому пути. Пытаясь скопироват
 
 Представляю вам концепцию Result<T,E> на языке PHP. К нему идут допиленные исключения, ошибки, позволяющие их логировать и выводить наравне с ними, а также ErrorBag, чтобы удобно их накапливать и работать с потомками.
 
-Для чего он нужен? Вы пишете одну функцию проверяющую тип и указываете текст ошибки. Потом из своего кода вы не пишете if/throw, а просто вызываете метод с пометкой orThrow() или orFallback(). Ваш метод отныне может и исключения бросать и одновременно быть проверялкой какого-нибудь типа.
+Для чего он нужен? Вы пишете одну функцию проверяющую тип и указываете текст ошибки. Потом из своего кода вы не пишете if/throw, а просто вызываете метод с пометкой orThrow() или orFallback(). Ваш метод отныне может и исключения бросать и одновременно быть проверялкой какого-нибудь типа. В довесок - реализовал полную булеву логику для этих объектов NOT/OR/AND/XOR/NXOR/NEEDS
 
 Посмотрите тесты, будет что вспомнить.
 
@@ -39,10 +39,13 @@ define('__DIR_ROOT__', __DIR__ . '/..');
 $theDebug = \Gzhegow\Lib\Lib::debug();
 $theTest = \Gzhegow\Lib\Lib::test();
 
+$testN = 0;
+
 // > TEST
 // > преобразуем стандартный warning в объект ошибки
-$fn = function () use ($theDebug) {
-    $theDebug->dump_value('TEST 1');
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
     @trigger_error('Hello');
@@ -57,12 +60,12 @@ $fn = function () use ($theDebug) {
 };
 $test = $theTest->newCase($fn);
 $test->expectStdoutIf(PHP_VERSION_ID >= 80000, '
-"TEST 1"
+"TEST ' . $testN . '"
 
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "Hello" ]
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80000, '
-"TEST 1"
+"TEST ' . $testN . '"
 
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "Hello" ]
 ');
@@ -71,8 +74,9 @@ $test->run();
 
 // > TEST
 // > ошибки можно создавать по разному, а главное - удобно
-$fn = function () use ($theDebug) {
-    $theDebug->dump_value('TEST 2');
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
     $ee = [];
@@ -94,8 +98,8 @@ $fn = function () use ($theDebug) {
     echo "\n";
 
     $ee = [];
-    $ee[] = $e = \Gzhegow\Ret\Core\Err::new(32767, __FILE__, __LINE__);
-    $ee[] = $e = \Gzhegow\Ret\Core\Err::new('message', __FILE__, __LINE__);
+    $ee[] = $e = \Gzhegow\Ret\Core\Err::new(32767, __FILE__, __LINE__);     // > int, seems as code
+    $ee[] = $e = \Gzhegow\Ret\Core\Err::new('message', __FILE__, __LINE__); // > string, seems as message
     $ee[] = $e = \Gzhegow\Ret\Core\Err::new([ '' => 32767, 0 => 'message', 'data' => 1, 'my_data2' ], __FILE__, __LINE__);
     foreach ( $ee as $e ) {
         $theDebug->dump_value([ $e, $e->message, $e->code, $e->payload ]);
@@ -109,6 +113,7 @@ $fn = function () use ($theDebug) {
         $ee = [];
         $ee[] = $e = \Gzhegow\Ret\Core\Err::code(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, __FILE__, __LINE__);
         $ee[] = $e = \Gzhegow\Ret\Core\Err::code([ 0 => \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, 'data' => 1, 'my_data2' ], __FILE__, __LINE__);
+        $ee[] = $e = \Gzhegow\Ret\Core\Err::new(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, __FILE__, __LINE__);
         $ee[] = $e = \Gzhegow\Ret\Core\Err::new([ '' => \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, 0 => null, 'data' => 1, 1 => 'my_data2' ], __FILE__, __LINE__);
         foreach ( $ee as $e ) {
             $theDebug->dump_value([ $e, $e->message, $e->code, $e->payload ]);
@@ -119,7 +124,6 @@ $fn = function () use ($theDebug) {
         $ee = [];
         $ee[] = $e = \Gzhegow\Ret\Core\Err::message(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, __FILE__, __LINE__);
         $ee[] = $e = \Gzhegow\Ret\Core\Err::message([ 0 => \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, 'data' => 1, 'my_data' ], __FILE__, __LINE__);
-        $ee[] = $e = \Gzhegow\Ret\Core\Err::new(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, __FILE__, __LINE__);
         $ee[] = $e = \Gzhegow\Ret\Core\Err::new([ '' => null, 0 => \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, 'data' => 1, 'my_data2' ], __FILE__, __LINE__);
         foreach ( $ee as $e ) {
             $theDebug->dump_value([ $e, $e->message, $e->code, $e->payload ]);
@@ -129,7 +133,7 @@ $fn = function () use ($theDebug) {
 };
 $test = $theTest->newCase($fn);
 $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
-"TEST 2"
+"TEST ' . $testN . '"
 
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "message", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "message", -1, NULL ]
@@ -139,21 +143,21 @@ $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "32767", 32767, "{ array(2) }" ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "MY_CODE", "MY_CODE", "{ array(2) }" ]
 
-[ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "32767", -1, NULL ]
+[ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "32767", 32767, NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "message", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "message", 32767, "{ array(2) }" ]
 
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "Error message about FAIL", "{ object # Gzhegow\Ret\Tests\MyEnum }", NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "Error message about FAIL", "{ object # Gzhegow\Ret\Tests\MyEnum }", "{ array(2) }" ]
+[ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "Error message about FAIL", "{ object # Gzhegow\Ret\Tests\MyEnum }", NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "Error message about FAIL", "{ object # Gzhegow\Ret\Tests\MyEnum }", "{ array(2) }" ]
 
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "Error message about FAIL", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "Error message about FAIL", -1, "{ array(2) }" ]
-[ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "Error message about FAIL", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "Error message about FAIL", -1, "{ array(2) }" ]
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
-"TEST 2"
+"TEST ' . $testN . '"
 
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\MainError }", "message", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\MainError }", "message", -1, NULL ]
@@ -163,7 +167,7 @@ $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\MainError }", "32767", 32767, "{ array(2) }" ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\MainError }", "MY_CODE", "MY_CODE", "{ array(2) }" ]
 
-[ "{ object # Gzhegow\Ret\Core\Error\PHP7\MainError }", "32767", -1, NULL ]
+[ "{ object # Gzhegow\Ret\Core\Error\PHP7\MainError }", "32767", 32767, NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\MainError }", "message", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\MainError }", "message", 32767, "{ array(2) }" ]
 ');
@@ -172,8 +176,9 @@ $test->run();
 
 // > TEST
 // > ошибки можно (и нужно) объединять в агрегаты, подбивая бизнес-задачу
-$fn = function () use ($theDebug) {
-    $theDebug->dump_value('TEST 3');
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
     $ee = [];
@@ -189,7 +194,7 @@ $fn = function () use ($theDebug) {
 };
 $test = $theTest->newCase($fn);
 $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
-"TEST 3"
+"TEST ' . $testN . '"
 
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "My aggregate message", -1, NULL ]
 ###
@@ -201,7 +206,7 @@ $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
 ###
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
-"TEST 3"
+"TEST ' . $testN . '"
 
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "My aggregate message", -1, NULL ]
 ###
@@ -218,8 +223,9 @@ $test->run();
 // > TEST
 // > познакомьтесь, ErrorBag
 // > мы отлично применили его при batch-обработке очередей, выгружаешь 100 задач, выполняешь 10 запросов (дедубликация), сохраняешь 10 цепочек. По тегам превращаешь 10 в 100 и сохраняешь отчет по 100 задачам
-$fn = function () use ($theDebug) {
-    $theDebug->dump_value('TEST 4');
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
     $ee = [];
@@ -280,7 +286,7 @@ $fn = function () use ($theDebug) {
 };
 $test = $theTest->newCase($fn);
 $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
-"TEST 4"
+"TEST ' . $testN . '"
 
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "Hello 1", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "Hello 2", -1, NULL ]
@@ -307,7 +313,7 @@ $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
 [ "{ object # Gzhegow\Ret\Core\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
-"TEST 4"
+"TEST ' . $testN . '"
 
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\MainError }", "Hello 1", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\MainError }", "Hello 2", -1, NULL ]
@@ -338,8 +344,9 @@ $test->run();
 
 // > TEST
 // > познакомьтесь: Ret (Result<T,E> # Result/Either)
-$fn = function () use ($theDebug) {
-    $theDebug->dump_value('TEST 5');
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
     // > as first, you should write own function using Ret::ok() and Ret::fail() in returns
@@ -384,7 +391,7 @@ $fn = function () use ($theDebug) {
 };
 $test = $theTest->newCase($fn);
 $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
-"TEST 5"
+"TEST ' . $testN . '"
 
 [ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The password is invalid", [ 1 => 123 ] ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The password is invalid", [ 1 => 123 ] ]
@@ -392,7 +399,7 @@ NAN
 NULL
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
-"TEST 5"
+"TEST ' . $testN . '"
 
 [ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The password is invalid", [ 1 => 123 ] ]
 [ "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The password is invalid", [ 1 => 123 ] ]
@@ -403,9 +410,100 @@ $test->run();
 
 
 // > TEST
-// > ещё чуть-чуть волшебства Ret
-$fn = function () use ($theDebug) {
-    $theDebug->dump_value('TEST 6');
+// > так-то у ошибок бывают коды, их удобно проверять IF-ом
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
+    echo "\n";
+
+    $e1 = \Gzhegow\Ret\Core\Err::code(1);
+    $e2 = \Gzhegow\Ret\Core\Err::code(2);
+    $ee = \Gzhegow\Ret\Core\Err::aggregate([ $e1, $e2 ]);
+    $theDebug->dump_value([ 'e1', '1', \Gzhegow\Ret\Core\Err::isCode($e1, 1) ]);
+    $theDebug->dump_value([ 'e2', '2', \Gzhegow\Ret\Core\Err::isCode($e2, 2) ]);
+    $theDebug->dump_value([ 'ee', '1', \Gzhegow\Ret\Core\Err::isCode($ee, 1) ]);
+    $theDebug->dump_value([ 'ee', '2', \Gzhegow\Ret\Core\Err::isCode($ee, 2) ]);
+    echo "\n";
+
+    $ret1 = \Gzhegow\Ret\Core\Ret\Ret::fail(1);
+    $ret2 = \Gzhegow\Ret\Core\Ret\Ret::fail(2);
+    $rret = \Gzhegow\Ret\Core\Ret\Ret::new()
+        ->or($ret1)
+        ->or($ret2)
+    ;
+    $theDebug->dump_value([ 'ret1', '1', \Gzhegow\Ret\Core\Err::isCode($ret1, 1) ]);
+    $theDebug->dump_value([ 'ret2', '2', \Gzhegow\Ret\Core\Err::isCode($ret2, 2) ]);
+    $theDebug->dump_value([ 'rret', '1', \Gzhegow\Ret\Core\Err::isCode($rret, 1) ]);
+    $theDebug->dump_value([ 'rret', '2', \Gzhegow\Ret\Core\Err::isCode($rret, 2) ]);
+    echo "\n";
+
+    if ( PHP_VERSION_ID >= 80100 ) {
+        $e1 = \Gzhegow\Ret\Core\Err::code(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1);
+        $e2 = \Gzhegow\Ret\Core\Err::code(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2);
+        $ee = \Gzhegow\Ret\Core\Err::aggregate([ $e1, $e2 ]);
+        $theDebug->dump_value([ 'e1', 'ERR_FAIL_1', \Gzhegow\Ret\Core\Err::isCode($e1, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1) ]);
+        $theDebug->dump_value([ 'e2', 'ERR_FAIL_2', \Gzhegow\Ret\Core\Err::isCode($e2, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2) ]);
+        $theDebug->dump_value([ 'ee', 'ERR_FAIL_1', \Gzhegow\Ret\Core\Err::isCode($ee, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1) ]);
+        $theDebug->dump_value([ 'ee', 'ERR_FAIL_2', \Gzhegow\Ret\Core\Err::isCode($ee, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2) ]);
+        echo "\n";
+
+        $ret1 = \Gzhegow\Ret\Core\Ret\Ret::fail(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1);
+        $ret2 = \Gzhegow\Ret\Core\Ret\Ret::fail(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2);
+        $rret = \Gzhegow\Ret\Core\Ret\Ret::new()
+            ->or($ret1)
+            ->or($ret2)
+        ;
+        $theDebug->dump_value([ 'ret1', 'ERR_FAIL_1', \Gzhegow\Ret\Core\Err::isCode($ret1, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1) ]);
+        $theDebug->dump_value([ 'ret2', 'ERR_FAIL_2', \Gzhegow\Ret\Core\Err::isCode($ret2, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2) ]);
+        $theDebug->dump_value([ 'rret', 'ERR_FAIL_1', \Gzhegow\Ret\Core\Err::isCode($rret, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1) ]);
+        $theDebug->dump_value([ 'rret', 'ERR_FAIL_2', \Gzhegow\Ret\Core\Err::isCode($rret, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2) ]);
+    }
+};
+$test = $theTest->newCase($fn);
+$test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
+"TEST ' . $testN . '"
+
+[ "e1", "1", TRUE ]
+[ "e2", "2", TRUE ]
+[ "ee", "1", FALSE ]
+[ "ee", "2", FALSE ]
+
+[ "ret1", "1", TRUE ]
+[ "ret2", "2", TRUE ]
+[ "rret", "1", FALSE ]
+[ "rret", "2", FALSE ]
+
+[ "e1", "ERR_FAIL_1", TRUE ]
+[ "e2", "ERR_FAIL_2", TRUE ]
+[ "ee", "ERR_FAIL_1", FALSE ]
+[ "ee", "ERR_FAIL_2", FALSE ]
+
+[ "ret1", "ERR_FAIL_1", TRUE ]
+[ "ret2", "ERR_FAIL_2", TRUE ]
+[ "rret", "ERR_FAIL_1", FALSE ]
+[ "rret", "ERR_FAIL_2", FALSE ]
+');
+$test->expectStdoutIf(PHP_VERSION_ID < 80100, '
+"TEST ' . $testN . '"
+
+[ "e1", "1", TRUE ]
+[ "e2", "2", TRUE ]
+[ "ee", "1", FALSE ]
+[ "ee", "2", FALSE ]
+
+[ "ret1", "1", TRUE ]
+[ "ret2", "2", TRUE ]
+[ "rret", "1", FALSE ]
+[ "rret", "2", FALSE ]
+');
+$test->run();
+
+
+// > TEST
+// > волшебство Ret
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
     /**
@@ -458,12 +556,12 @@ $fn = function () use ($theDebug) {
 };
 $test = $theTest->newCase($fn);
 $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
-"TEST 6"
+"TEST ' . $testN . '"
 
 [ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The password is invalid", [ 1 => "{ object # stdClass }" ] ]
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
-"TEST 6"
+"TEST ' . $testN . '"
 
 [ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The password is invalid", [ 1 => "{ object # stdClass }" ] ]
 ');
@@ -471,9 +569,10 @@ $test->run();
 
 
 // > TEST
-// > ладно, давай ещё немножко волшебства Ret
-$fn = function () use ($theDebug) {
-    $theDebug->dump_value('TEST 7');
+// > ещё немножко волшебства Ret
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
     $fnArrayNotEmpty = function ($value) : \Gzhegow\Ret\Core\Ret\Ret {
@@ -515,13 +614,13 @@ $fn = function () use ($theDebug) {
         return \Gzhegow\Ret\Core\Ret\Ret::ok($valueString);
     };
 
-    // > hmm, whats this? is it "chaining" to get "first success"?
+    // > how about `chaining`...
     $ret = \Gzhegow\Ret\Core\Ret\Ret::new();
     //
     $value = 123;
     $valueValid = null
-        ?? $fnStringNotEmpty($value)->orNull($ret)
-        ?? $fnArrayNotEmpty($value)->orNull($ret);
+        ?? $fnStringNotEmpty($value)->fillInto($ret)->orNull()
+        ?? $fnArrayNotEmpty($value)->fillInto($ret)->orNull();;
     //
     $theDebug->dump_value($valueValid); // > null, cause `123` is not a string or an array
     echo "\n";
@@ -541,7 +640,7 @@ $fn = function () use ($theDebug) {
 };
 $test = $theTest->newCase($fn);
 $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
-"TEST 7"
+"TEST ' . $testN . '"
 
 NULL
 
@@ -550,7 +649,7 @@ NULL
 [ "1", "{ object # Gzhegow\Ret\Core\Error\PHP8\MainError }", "The `value` should be array, non-empty", [ 1 => 123 ] ]
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
-"TEST 7"
+"TEST ' . $testN . '"
 
 NULL
 
@@ -563,8 +662,9 @@ $test->run();
 
 // > TEST
 // > обнаглеем в конец вместе с Ret
-$fn = function () use ($theDebug) {
-    $theDebug->dump_value('TEST 8');
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
     // > we may prefer safe call internal PHP functions that may accidentally trigger warning
@@ -586,9 +686,9 @@ $fn = function () use ($theDebug) {
 
     // > old good "keep first success" but without null-coalesce
     $ret = \Gzhegow\Ret\Core\Ret\Ret::new()
-        ->tryAny($fnFopen([ '1.txt', 'r' ]))
-        ->tryAny($fnFopen([ '2.txt', 'r' ]))
-        ->tryAny($fnFopen([ '3.txt', 'r' ]))
+        ->or($fnFopen([ '1.txt', 'r' ]))
+        ->or($fnFopen([ '2.txt', 'r' ]))
+        ->or($fnFopen([ '3.txt', 'r' ]))
     ;
     try {
         $maybeValueMaybeNull = $ret->orThrow();
@@ -604,49 +704,13 @@ $fn = function () use ($theDebug) {
 
     // > `first success` makes $ret succesful
     $ret = \Gzhegow\Ret\Core\Ret\Ret::new()
-        ->tryAny($fnFopen([ '1.txt', 'r' ]))
-        ->tryAny($fnFopen([ __FILE__, 'r' ]))
-        ->tryAny($fnFopen([ '3.txt', 'r' ]))
+        ->or($fnFopen([ '1.txt', 'r' ]))  // > errors: 1, value: empty
+        ->or($fnFopen([ __FILE__, 'r' ])) // > errors: 0, value: resource
+        ->or($fnFopen([ '3.txt', 'r' ])) // > errors: 0, value: resource, ignored cause of value exists
     ;
-    $fh = $ret->orThrow(); // > never throws
+    $fh = $ret->orThrow();
     $theDebug->dump_value($fh);
     fclose($fh);
-    echo "\n";
-
-    // > collects all errors and keep first received value ONLY IF ALL SUCCEEDED
-    $ret = \Gzhegow\Ret\Core\Ret\Ret::new()
-        ->tryAllFirst($fnFopen([ '1.txt', 'r' ]))
-        ->tryAllFirst($fnFopen([ '2.txt', 'r' ]))
-        ->tryAllFirst($fnFopen([ '3.txt', 'r' ]))
-    ;
-    try {
-        $ret->orThrow();
-    }
-    catch ( \Gzhegow\Ret\Exception\AggregateExceptionInterface $e ) {
-        $theDebug->dump_array([ $e, $e->getMessage() ], 2);
-
-        foreach ( $e->getErrorsRecursive() as $path => $ee ) {
-            $theDebug->dump_array([ implode('.', $path), $ee, $ee->message ], 2);
-        }
-    }
-    echo "\n";
-
-    // > collects all errors and replaces value to next success ONLY IF ALL SUCCEEDED
-    $ret = \Gzhegow\Ret\Core\Ret\Ret::new()
-        ->tryAllLast($fnFopen([ '1.txt', 'r' ]))
-        ->tryAllLast($fnFopen([ '2.txt', 'r' ]))
-        ->tryAllLast($fnFopen([ '3.txt', 'r' ]))
-    ;
-    try {
-        $ret->orThrow();
-    }
-    catch ( \Gzhegow\Ret\Exception\AggregateExceptionInterface $e ) {
-        $theDebug->dump_array([ $e, $e->getMessage() ], 2);
-
-        foreach ( $e->getErrorsRecursive() as $path => $ee ) {
-            $theDebug->dump_array([ implode('.', $path), $ee, $ee->message ], 2);
-        }
-    }
     echo "\n";
 
     // > all errors or first value
@@ -682,18 +746,10 @@ $fn = function () use ($theDebug) {
         }
     }
     echo "\n";
-
-    // > all errors and all values (Ret is filled with [ 'errors', 'results' ] dict, Ret always SUCCESS)
-    $ret = \Gzhegow\Ret\Core\Ret\Ret::some([
-        $fnFopen([ '1.txt', 'r' ]),
-        $fnFopen([ '2.txt', 'r' ]),
-    ]);
-    $result = $ret->getResult();
-    $theDebug->dump_array_multiline($result, 2);
 };
 $test = $theTest->newCase($fn);
 $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
-"TEST 8"
+"TEST ' . $testN . '"
 
 [ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The `orThrow` caused exception" ]
 [ "0", "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The `fnCall` intercepted warnings" ]
@@ -714,41 +770,15 @@ $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
 [ "0.0", "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "fopen(1.txt): Failed to open stream: No such file or directory" ]
 [ "1", "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The `fnCall` intercepted warnings" ]
 [ "1.0", "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "fopen(2.txt): Failed to open stream: No such file or directory" ]
-[ "2", "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "2.0", "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "fopen(3.txt): Failed to open stream: No such file or directory" ]
 
 [ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The `orThrow` caused exception" ]
 [ "0", "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The `fnCall` intercepted warnings" ]
 [ "0.0", "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "fopen(1.txt): Failed to open stream: No such file or directory" ]
 [ "1", "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The `fnCall` intercepted warnings" ]
 [ "1.0", "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "fopen(2.txt): Failed to open stream: No such file or directory" ]
-[ "2", "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "2.0", "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "fopen(3.txt): Failed to open stream: No such file or directory" ]
-
-[ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The `orThrow` caused exception" ]
-[ "0", "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "0.0", "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "fopen(1.txt): Failed to open stream: No such file or directory" ]
-[ "1", "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "1.0", "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "fopen(2.txt): Failed to open stream: No such file or directory" ]
-
-[ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The `orThrow` caused exception" ]
-[ "0", "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "0.0", "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "fopen(1.txt): Failed to open stream: No such file or directory" ]
-[ "1", "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "1.0", "{ object # Gzhegow\Ret\Core\Error\PHP8\TriggeredError }", "fopen(2.txt): Failed to open stream: No such file or directory" ]
-
-###
-[
-  "errors" => [
-    "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }",
-    "{ object # Gzhegow\Ret\Core\Error\PHP8\AggregateError }"
-  ],
-  "values" => []
-]
-###
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
-"TEST 8"
+"TEST ' . $testN . '"
 
 [ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The `orThrow` caused exception" ]
 [ "0", "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The `fnCall` intercepted warnings" ]
@@ -769,46 +799,21 @@ $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 [ "0.0", "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "fopen(1.txt): failed to open stream: No such file or directory" ]
 [ "1", "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The `fnCall` intercepted warnings" ]
 [ "1.0", "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "fopen(2.txt): failed to open stream: No such file or directory" ]
-[ "2", "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "2.0", "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "fopen(3.txt): failed to open stream: No such file or directory" ]
 
 [ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The `orThrow` caused exception" ]
 [ "0", "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The `fnCall` intercepted warnings" ]
 [ "0.0", "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "fopen(1.txt): failed to open stream: No such file or directory" ]
 [ "1", "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The `fnCall` intercepted warnings" ]
 [ "1.0", "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "fopen(2.txt): failed to open stream: No such file or directory" ]
-[ "2", "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "2.0", "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "fopen(3.txt): failed to open stream: No such file or directory" ]
-
-[ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The `orThrow` caused exception" ]
-[ "0", "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "0.0", "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "fopen(1.txt): failed to open stream: No such file or directory" ]
-[ "1", "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "1.0", "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "fopen(2.txt): failed to open stream: No such file or directory" ]
-
-[ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The `orThrow` caused exception" ]
-[ "0", "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "0.0", "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "fopen(1.txt): failed to open stream: No such file or directory" ]
-[ "1", "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }", "The `fnCall` intercepted warnings" ]
-[ "1.0", "{ object # Gzhegow\Ret\Core\Error\PHP7\TriggeredError }", "fopen(2.txt): failed to open stream: No such file or directory" ]
-
-###
-[
-  "errors" => [
-    "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }",
-    "{ object # Gzhegow\Ret\Core\Error\PHP7\AggregateError }"
-  ],
-  "values" => []
-]
-###
 ');
 $test->run();
 
 
 // > TEST
 // > и на добивочку передадим привет Wordpress и legacy-коду
-$fn = function () use ($theDebug) {
-    $theDebug->dump_value('TEST 9');
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
     $wrapper = \Gzhegow\Ret\Core\Ret\Ret::wrapper()
@@ -850,14 +855,14 @@ $fn = function () use ($theDebug) {
 };
 $test = $theTest->newCase($fn);
 $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
-"TEST 9"
+"TEST ' . $testN . '"
 
 { object # Gzhegow\Ret\Core\Ret\RetWrapper }
 
 [ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The result should be any, but \WP_Error", [ 1 => "\WP_Error" ] ]
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
-"TEST 9"
+"TEST ' . $testN . '"
 
 { object # Gzhegow\Ret\Core\Ret\RetWrapper }
 
@@ -868,8 +873,9 @@ $test->run();
 
 // > TEST
 // > ДЛЯ ЛЮБОЗНАТЕЛЬНЫХ - для чего нужны Error's, когда есть \Throwable's
-$fn = function () use ($theDebug) {
-    $theDebug->dump_value('TEST 10');
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
     $fnRecursive = function ($level, $mode, $currentLevel = 1) use (&$fnRecursive) {
@@ -903,7 +909,7 @@ $fn = function () use ($theDebug) {
         $timeMinList = [
             '^8.0' => [
                 [ 0.005, 0.004 ],
-                [ 0.010, 0.008 ],
+                [ 0.010, 0.007 ],
                 [ 0.017, 0.012 ],
                 [ 0.050, 0.030 ],
             ],
@@ -916,7 +922,7 @@ $fn = function () use ($theDebug) {
         ];
         $timeMaxList = [
             '^8.0' => [
-                [ 0.006, 0.006 ],
+                [ 0.007, 0.006 ],
                 [ 0.012, 0.009 ],
                 [ 0.020, 0.014 ],
                 [ 0.058, 0.036 ],
@@ -925,7 +931,7 @@ $fn = function () use ($theDebug) {
                 [ 0.007, 0.006 ],
                 [ 0.015, 0.009 ],
                 [ 0.025, 0.014 ],
-                [ 0.077, 0.036 ],
+                [ 0.078, 0.036 ],
             ],
         ];
 
@@ -983,15 +989,15 @@ $fn = function () use ($theDebug) {
 };
 $test = $theTest->newCase($fn);
 $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
-"TEST 10"
+"TEST ' . $testN . '"
 
 +---+-------------+---------------------------------------+---------------+-------------+----------+----------+
 |   | PHP Version | Object Type                           | Objects Count | Trace Level | Time Min | Time Max |
 +---+-------------+---------------------------------------+---------------+-------------+----------+----------+
-| 0 | ^8.0        | Exception                             | 10000         | 5           | 0.005    | 0.006    |
+| 0 | ^8.0        | Exception                             | 10000         | 5           | 0.005    | 0.007    |
 | 1 | ^8.0        | Gzhegow\Ret\Core\Error\PHP8\MainError | 10000         | 5           | 0.004    | 0.006    |
 | 2 | ^8.0        | Exception                             | 10000         | 15          | 0.01     | 0.012    |
-| 3 | ^8.0        | Gzhegow\Ret\Core\Error\PHP8\MainError | 10000         | 15          | 0.008    | 0.009    |
+| 3 | ^8.0        | Gzhegow\Ret\Core\Error\PHP8\MainError | 10000         | 15          | 0.007    | 0.009    |
 | 4 | ^8.0        | Exception                             | 10000         | 30          | 0.017    | 0.02     |
 | 5 | ^8.0        | Gzhegow\Ret\Core\Error\PHP8\MainError | 10000         | 30          | 0.012    | 0.014    |
 | 6 | ^8.0        | Exception                             | 10000         | 100         | 0.05     | 0.058    |
@@ -999,7 +1005,7 @@ $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
 +---+-------------+---------------------------------------+---------------+-------------+----------+----------+
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
-"TEST 10"
+"TEST ' . $testN . '"
 
 +---+-------------+---------------------------------------+---------------+-------------+----------+----------+
 |   | PHP Version | Object Type                           | Objects Count | Trace Level | Time Min | Time Max |
@@ -1010,7 +1016,7 @@ $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 | 3 | ^7.3        | Gzhegow\Ret\Core\Error\PHP7\MainError | 10000         | 15          | 0.007    | 0.009    |
 | 4 | ^7.3        | Exception                             | 10000         | 30          | 0.017    | 0.025    |
 | 5 | ^7.3        | Gzhegow\Ret\Core\Error\PHP7\MainError | 10000         | 30          | 0.012    | 0.014    |
-| 6 | ^7.3        | Exception                             | 10000         | 100         | 0.05     | 0.077    |
+| 6 | ^7.3        | Exception                             | 10000         | 100         | 0.05     | 0.078    |
 | 7 | ^7.3        | Gzhegow\Ret\Core\Error\PHP7\MainError | 10000         | 100         | 0.03     | 0.036    |
 +---+-------------+---------------------------------------+---------------+-------------+----------+----------+
 ');

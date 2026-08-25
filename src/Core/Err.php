@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Ret\Core;
 
+use Gzhegow\Ret\Core\Ret\Ret;
 use Gzhegow\Ret\Exception\Exception;
 use Gzhegow\Ret\Exception\LogicException;
 use Gzhegow\Ret\Core\Error\ErrorInterface;
@@ -163,21 +164,20 @@ abstract class Err
 
 
     /**
-     * @param \Throwable|ErrorInterface $e
+     * @param ErrorInterface|Ret|\Throwable $e
      *
      * @return int|string|\BackedEnum
      */
     public static function getCode($e)
     {
         if ( $e instanceof ErrorInterface ) {
-            return ($e instanceof AggregateErrorInterface)
-                ? -1
-                : $e->code;
+            return $e->code ?: -1;
+
+        } elseif ( $e instanceof Ret ) {
+            return $e->getCode() ?: -1;
 
         } elseif ( $e instanceof \Throwable ) {
-            return ($e instanceof AggregateExceptionInterface)
-                ? -1
-                : $e->getCode();
+            return $e->getCode() ?: -1;
 
         } else {
             throw new \LogicException('The `e` is unknown');
@@ -185,27 +185,28 @@ abstract class Err
     }
 
     /**
-     * @param \Throwable|ErrorInterface $e
-     * @param mixed                     $code
+     * @param ErrorInterface|Ret|\Throwable $e
+     * @param mixed                         $code
      */
     public static function isCode($e, $code) : bool
     {
         if ( $e instanceof ErrorInterface ) {
-            $leftCode = ($e instanceof AggregateErrorInterface)
-                ? -1
-                : $e->code;
+            $leftCode = $e->code ?: -1;
+
+        } elseif ( $e instanceof Ret ) {
+            $leftCode = $e->getCode() ?: -1;
 
         } elseif ( $e instanceof \Throwable ) {
-            $leftCode = ($e instanceof AggregateExceptionInterface)
-                ? -1
-                : $e->getCode();
+            $leftCode = $e->getCode() ?: -1;
 
         } else {
             return false;
         }
 
+        $rightCode = $code;
+
         $leftCode = $leftCode ?? -1;
-        $rightCode = $code ?? -1;
+        $rightCode = $rightCode ?? -1;
 
         if ( $leftCode === -1 ) return false;
         if ( $rightCode === -1 ) return false;
@@ -270,8 +271,8 @@ abstract class Err
         $childrenReversed = array_reverse($children, true);
 
         /**
-         * @var \Gzhegow\Ret\Core\Error\ErrorInterface[] $stack
-         * @var int[][]                                  $stackPath
+         * @var ErrorInterface[] $stack
+         * @var int[][]          $stackPath
          */
         $stack = $childrenReversed;
         $stackPath = [];

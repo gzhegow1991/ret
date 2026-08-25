@@ -37,7 +37,17 @@ class ErrorMessage implements ErrorMessageInterface
         }
 
         $payloadValid = null;
-        if ( is_array($from) ) {
+
+        $maybeCode = null;
+        $maybeMessage = null;
+
+        if ( is_int($from) ) {
+            $maybeCode = $from;
+
+        } elseif ( is_string($from) ) {
+            $maybeMessage = $from;
+
+        } elseif ( is_array($from) ) {
             $maybeCode = $from[''] ?? null;
             $maybeMessage = $from[0] ?? null;
             unset($from['']);
@@ -47,9 +57,9 @@ class ErrorMessage implements ErrorMessageInterface
                 $payloadValid = $from;
             }
 
-        } else {
-            $maybeCode = null;
-            $maybeMessage = $from;
+        } elseif ( is_object($from) ) {
+            // > \BackedEnum
+            $maybeCode = $from;
         }
 
         if ( $maybeCode && $maybeMessage ) {
@@ -146,16 +156,17 @@ class ErrorMessage implements ErrorMessageInterface
         }
 
         $payloadValid = null;
-        if ( is_array($from) ) {
+
+        if ( ! is_array($from) ) {
+            $maybeCode = $from;
+
+        } else {
             $maybeCode = $from[0] ?? null;
             unset($from[0]);
 
             if ( [] !== $from ) {
                 $payloadValid = $from;
             }
-
-        } else {
-            $maybeCode = $from;
         }
 
         if ( is_int($maybeCode) ) {
@@ -197,16 +208,17 @@ class ErrorMessage implements ErrorMessageInterface
         }
 
         $payloadValid = null;
-        if ( is_array($from) ) {
+
+        if ( ! is_array($from) ) {
+            $maybeMessage = $from;
+
+        } else {
             $maybeMessage = $from[0] ?? null;
             unset($from[0]);
 
             if ( [] !== $from ) {
                 $payloadValid = $from;
             }
-
-        } else {
-            $maybeMessage = $from;
         }
 
         if ( is_string($maybeMessage) ) {

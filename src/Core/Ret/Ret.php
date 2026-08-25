@@ -62,14 +62,8 @@ class Ret
      */
     public static function ok($value)
     {
-        if ( $value instanceof static ) {
-            throw new LogicException(
-                [ 'Unable to `ok`: attempt to return `Ret` instance as value', $value ]
-            );
-        }
-
         $instance = new static();
-        $instance->value[0] = $value;
+        $instance->value[0] = static::okValue($value);
 
         return $instance;
     }
@@ -83,32 +77,8 @@ class Ret
      */
     public static function fail($error, $file = null, $line = null)
     {
-        if ( $error instanceof static ) {
-            throw new LogicException(
-                [ 'Unable to `fail`: attempt to return `Ret` instance as error', $error ]
-            );
-        }
-
-        if ( $error instanceof ErrorInterface ) {
-            $e = $error;
-
-            if ( null !== $file ) {
-                $e = Err::aggregate([ $e ], $file, $line, '[FAIL]');
-            }
-
-        } elseif ( $error instanceof \Throwable ) {
-            $e = Err::wrap($error);
-
-            if ( null !== $file ) {
-                $e = Err::aggregate([ $e ], $file, $line, '[FAIL]');
-            }
-
-        } else {
-            $e = Err::new($error, $file, $line);
-        }
-
         $instance = new static();
-        $instance->errors = [ $e ];
+        $instance->errors = [ static::failError($error, $file, $line) ];
 
         return $instance;
     }
@@ -160,6 +130,10 @@ class Ret
         return $instance;
     }
 
+    protected function __construct()
+    {
+    }
+
 
     /**
      * @param array{ 0: mixed } $refs
@@ -199,7 +173,7 @@ class Ret
     /**
      * @return T
      */
-    public function getResult()
+    public function getValue()
     {
         if ( [] === $this->value ) {
             throw new RuntimeException('The `ret` contains no value');
@@ -207,6 +181,25 @@ class Ret
 
         return $this->value[0];
     }
+
+    /**
+     * @return int|string|\BackedEnum
+     */
+    public function getCode()
+    {
+        if ( [] !== $this->value ) {
+            return 0;
+        }
+
+        if ( [] !== $this->errors ) {
+            if ( ! isset($this->errors[1]) ) {
+                return $this->errors[0]->code;
+            }
+        }
+
+        return -1;
+    }
+
 
     /**
      * @return ErrorInterface[]
@@ -289,23 +282,13 @@ class Ret
      *
      * @return T|TT|TTT
      */
-    public function orFallback($fallback, $default = null, ?self $mergeTo = null)
+    public function orFallback($fallback, $default = null)
     {
         if ( [] !== $this->value ) {
-            if ( null !== $mergeTo ) {
-                $mergeTo->value = [ $this->value[0] ];
-                $mergeTo->errors = [];
-            }
-
             return $this->value[0];
         }
 
         if ( [] !== $this->errors ) {
-            if ( null !== $mergeTo ) {
-                $mergeTo->value = [];
-                $mergeTo->errors = array_merge($mergeTo->errors, $this->errors);
-            }
-
             return $fallback;
         }
 
@@ -315,78 +298,427 @@ class Ret
     /**
      * @return T|null
      */
-    public function orNull(?self $mergeTo = null)
+    public function orNull()
     {
-        return $this->orFallback(null, null, $mergeTo);
+        return $this->orFallback(null, null);
     }
 
 
     /**
-     * @param static<T> $ret
-     *
-     * @return static<T>
+     * @return static
      */
-    public function tryAny(self $ret)
-    {
-        if ( [] !== $this->value ) {
-            return $this;
-        }
-
-        if ( [] !== $ret->value ) {
-            $this->value = $ret->value;
-            $this->errors = [];
-
-            return $this;
-        }
-
-        if ( [] !== $ret->errors ) {
-            $this->value = [];
-            $this->errors = array_merge($this->errors, $ret->errors);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param static<T> $ret
-     *
-     * @return static<T>
-     */
-    public function tryAllFirst(self $ret)
+    public function tryInto(self $ret)
     {
         if ( [] !== $ret->errors ) {
-            $this->value = [];
-            $this->errors = array_merge($this->errors, $ret->errors);
-
-            return $this;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param static<T> $ret
-     *
-     * @return static<T>
-     */
-    public function tryAllLast(self $ret)
-    {
-        if ( [] !== $ret->errors ) {
-            $this->value = [];
-            $this->errors = array_merge($this->errors, $ret->errors);
-
             return $this;
         }
 
         if ( [] !== $this->errors ) {
+            $ret->value = [];
+            $ret->errors = array_merge($ret->errors, $this->errors);
+
             return $this;
         }
 
-        if ( [] !== $ret->value ) {
-            $this->value = $ret->value;
+        if ( [] !== $this->value ) {
+            return $this;
+        }
+
+        if ( [] !== $this->value ) {
+            $ret->value = $this->value;
         }
 
         return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function putInto(self $ret)
+    {
+        if ( [] !== $ret->errors ) {
+            return $this;
+        }
+
+        if ( [] !== $this->errors ) {
+            $ret->value = [];
+            $ret->errors = array_merge($ret->errors, $this->errors);
+
+            return $this;
+        }
+
+        if ( [] !== $this->value ) {
+            $ret->value = $this->value;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function fillInto(self $ret)
+    {
+        if ( [] !== $ret->value ) {
+            return $this;
+        }
+
+        if ( [] !== $this->value ) {
+            $ret->value = $this->value;
+            $ret->errors = [];
+        }
+
+        if ( [] !== $this->errors ) {
+            $ret->errors = array_merge($ret->errors, $this->errors);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function pushInto(self $ret)
+    {
+        if ( [] !== $this->value ) {
+            $ret->value = $this->value;
+            $ret->errors = [];
+        }
+
+        if ( [] !== $this->errors ) {
+            $ret->errors = array_merge($ret->errors, $this->errors);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * > BOOL NOT (IF FALSE OR NULL)
+     *
+     * @return static
+     */
+    public function resolve($value = null)
+    {
+        $clone = clone $this;
+
+        $thisSuccess = ([] !== $clone->value);
+
+        if ( $thisSuccess ) {
+            return $clone;
+        }
+
+        $clone->value = [ static::okValue($value) ];
+        $clone->errors = [];
+
+        return $clone;
+    }
+
+    /**
+     * > BOOL NOT (IF TRUE OR NULL)
+     *
+     * @return static
+     */
+    public function reject($error, $file = null, $line = null)
+    {
+        $clone = clone $this;
+
+        $thisFail = ([] !== $clone->errors);
+
+        if ( $thisFail ) {
+            return $clone;
+        }
+
+        $clone->value = [];
+        $clone->errors = [ static::failError($error, $file, $line) ];
+
+        return $clone;
+    }
+
+
+    /**
+     * > BOOL OR (IF A OR B THEN SUCCESS ELSE FAIL)
+     *
+     * @return static
+     */
+    public function or(self $ret)
+    {
+        $clone = clone $this;
+
+        $thisSuccess = ([] !== $clone->value);
+
+        if ( $thisSuccess ) {
+            return $clone;
+        }
+
+        $retSuccess = ([] !== $ret->value);
+
+        if ( $retSuccess ) {
+            $clone->value = $ret->value;
+            $clone->errors = [];
+
+            return $clone;
+        }
+
+        $retFail = ([] !== $ret->errors);
+
+        if ( $retFail ) {
+            $clone->value = [];
+            $clone->errors = array_merge($clone->errors, $ret->errors);
+        }
+
+        return $clone;
+    }
+
+
+    /**
+     *  > BOOL AND (IF A AND B THEN SUCCESS A ELSE FAIL)
+     *
+     * @return static
+     */
+    public function andKeep(self $ret)
+    {
+        $clone = clone $this;
+
+        $thisFail = ([] !== $clone->errors);
+
+        if ( $thisFail ) {
+            return $clone;
+        }
+
+        $retFail = ([] !== $ret->errors);
+
+        if ( $retFail ) {
+            $clone->value = [];
+            $clone->errors = $ret->errors;
+
+            return $clone;
+        }
+
+        $thisSuccess = ([] !== $clone->value);
+
+        if ( $thisSuccess ) {
+            return $clone;
+        }
+
+        $retSuccess = ([] !== $ret->value);
+
+        if ( $retSuccess ) {
+            $clone->value = $ret->value;
+        }
+
+        return $clone;
+    }
+
+    /**
+     * > BOOL AND (IF A AND B THEN SUCCESS B ELSE FAIL)
+     *
+     * @return static
+     */
+    public function andLast(self $ret)
+    {
+        $clone = clone $this;
+
+        $thisFail = ([] !== $clone->errors);
+
+        if ( $thisFail ) {
+            return $clone;
+        }
+
+        $retFail = ([] !== $ret->errors);
+
+        if ( $retFail ) {
+            $clone->value = [];
+            $clone->errors = $ret->errors;
+
+            return $clone;
+        }
+
+        $retSuccess = ([] !== $ret->value);
+
+        if ( $retSuccess ) {
+            $clone->value = $ret->value;
+        }
+
+        return $clone;
+    }
+
+
+    /**
+     * > BOOL XOR (IF A !== B THEN SUCCESS ELSE FAIL)
+     *
+     * @return static
+     */
+    public function xor(self $ret, $error, $file = null, $line = null)
+    {
+        $clone = clone $this;
+
+        $thisSuccess = ([] !== $clone->value);
+        $retSuccess = ([] !== $ret->value);
+
+        if ( false ) {
+            //
+
+        } elseif ( $thisSuccess && $retSuccess ) {
+            $clone->value = [];
+            $clone->errors = [ static::failError($error, $file, $line) ];
+
+        } elseif ( $thisSuccess ) {
+            // $clone->value = $clone->value;
+            $clone->errors = [];
+
+        } elseif ( $retSuccess ) {
+            $clone->value = $ret->value;
+            $clone->errors = [];
+
+        } else {
+            $clone->value = [];
+            $clone->errors = array_merge($clone->errors, $ret->errors);
+        }
+
+        return $clone;
+    }
+
+
+    /**
+     * > BOOL XNOR (IF A === B THEN SUCCESS ELSE FAIL)
+     *
+     * @return static
+     */
+    public function nxorKeep(self $ret)
+    {
+        $clone = clone $this;
+
+        $thisSuccess = ([] !== $clone->value);
+        $retSuccess = ([] !== $ret->value);
+
+        if ( false ) {
+            //
+
+        } elseif ( $thisSuccess && $retSuccess ) {
+            // $clone->value = $clone->value;
+            $clone->errors = [];
+
+        } elseif ( $thisSuccess ) {
+            $clone->value = [];
+            $clone->errors = $ret->errors;
+
+        } elseif ( $retSuccess ) {
+            $clone->value = [];
+            // $clone->errors = $clone->errors;
+
+        } else {
+            $clone->value = [ null ];
+            $clone->errors = [];
+        }
+
+        return $clone;
+    }
+
+    /**
+     * > BOOL XNOR (IF A === B THEN SUCCESS ELSE FAIL)
+     *
+     * @return static
+     */
+    public function nxorLast(self $ret)
+    {
+        $clone = clone $this;
+
+        $thisSuccess = ([] !== $clone->value);
+        $retSuccess = ([] !== $ret->value);
+
+        if ( false ) {
+            //
+
+        } elseif ( $thisSuccess && $retSuccess ) {
+            $clone->value = $ret->value;
+            $clone->errors = [];
+
+        } elseif ( $thisSuccess ) {
+            $clone->value = [];
+            $clone->errors = $ret->errors;
+
+        } elseif ( $retSuccess ) {
+            $clone->value = [];
+            // $clone->errors = $clone->errors;
+
+        } else {
+            $clone->value = [ null ];
+            $clone->errors = [];
+        }
+
+        return $clone;
+    }
+
+
+    /**
+     * > BOOL IMPLICATION (IF A AND !B THEN FAIL ELSE SUCCESS A)
+     *
+     * @return static
+     */
+    public function needsKeep(self $ret)
+    {
+        $clone = clone $this;
+
+        $thisSuccess = ([] !== $clone->value);
+        $retSuccess = ([] !== $ret->value);
+
+        if ( false ) {
+            //
+
+        } elseif ( $thisSuccess && $retSuccess ) {
+            // $clone->value = $clone->value;
+            $clone->errors = [];
+
+        } elseif ( $thisSuccess ) {
+            $clone->value = [];
+            $clone->errors = $ret->errors;
+
+        } elseif ( $retSuccess ) {
+            $clone->value = $ret->value;
+            $clone->errors = [];
+
+        } else {
+            $clone->value = [ null ];
+            $clone->errors = [];
+        }
+
+        return $clone;
+    }
+
+    /**
+     * > BOOL IMPLICATION (IF A AND !B THEN FAIL ELSE SUCCESS B)
+     *
+     * @return static
+     */
+    public function needsLast(self $ret)
+    {
+        $clone = clone $this;
+
+        $thisSuccess = ([] !== $clone->value);
+        $retSuccess = ([] !== $ret->value);
+
+        if ( false ) {
+            //
+
+        } elseif ( $thisSuccess && $retSuccess ) {
+            $clone->value = $ret->value;
+            $clone->errors = [];
+
+        } elseif ( $thisSuccess ) {
+            $clone->value = [];
+            $clone->errors = $ret->errors;
+
+        } elseif ( $retSuccess ) {
+            $clone->value = $ret->value;
+            $clone->errors = [];
+
+        } else {
+            $clone->value = [ null ];
+            $clone->errors = [];
+        }
+
+        return $clone;
     }
 
 
@@ -397,29 +729,30 @@ class Ret
      */
     public static function any(array $rets = [])
     {
-        $instance = new static();
-
         $value = null;
         $errors = [];
 
         foreach ( $rets as $ret ) {
-            if ( [] !== $ret->errors ) {
+            if ( $ret->isFail() ) {
                 $errors = array_merge($errors, $ret->errors);
-            }
 
-            if ( [] !== $ret->value ) {
-                $value = $ret->value;
+            } elseif ( $ret->isOk() ) {
+                $value = $ret->value[0];
+                $errors = [];
 
                 break;
             }
         }
 
-        if ( null !== $value ) {
-            $instance->value = $value;
+        $instance = new static();
 
-        } else {
+        if ( [] !== $errors ) {
             $instance->errors = $errors;
+
+            return $instance;
         }
+
+        $instance->value[0] = $value;
 
         return $instance;
     }
@@ -427,31 +760,31 @@ class Ret
     /**
      * @param static<T>[] $rets
      *
-     * @return static<array<int, T>>
+     * @return static<T[]>|static
      */
     public static function all(array $rets)
     {
-        $values = [];
         $errors = [];
+        $values = [];
 
         foreach ( $rets as $i => $ret ) {
-            if ( [] !== $ret->errors ) {
+            if ( $ret->isFail() ) {
                 $errors = array_merge($errors, $ret->errors);
-            }
 
-            if ( [] !== $ret->value ) {
+            } elseif ( $ret->isOk() ) {
                 $values[$i] = $ret->value[0];
             }
         }
 
         $instance = new static();
 
-        if ( [] === $errors ) {
-            $instance->value[0] = $values;
-
-        } else {
+        if ( [] !== $errors ) {
             $instance->errors = $errors;
+
+            return $instance;
         }
+
+        $instance->value[0] = $values;
 
         return $instance;
     }
@@ -459,30 +792,34 @@ class Ret
     /**
      * @param static<T>[] $rets
      *
-     * @return static<array{ values: T[], errors: ErrorInterface[] }>
+     * @return array{ 0: static, 1: static<T[]> }
      */
-    public static function some(array $rets)
+    public static function both(array $rets) : array
     {
-        $values = [];
         $errors = [];
+        $values = [];
 
         foreach ( $rets as $i => $ret ) {
-            if ( [] !== $ret->errors ) {
+            if ( $ret->isFail() ) {
                 $errors = array_merge($errors, $ret->errors);
-            }
 
-            if ( [] !== $ret->value ) {
+            } elseif ( $ret->isOk() ) {
                 $values[$i] = $ret->value[0];
             }
         }
 
-        $instance = new static();
-        $instance->value[0] = [
-            'errors' => $errors,
-            'values' => $values,
-        ];
+        $retErrors = new static();
+        $retValues = new static();
 
-        return $instance;
+        if ( [] !== $errors ) {
+            $retErrors->errors = $errors;
+        }
+
+        if ( [] !== $values ) {
+            $retValues->value[0] = $values;
+        }
+
+        return [ $retErrors, $retValues ];
     }
 
 
@@ -573,5 +910,52 @@ class Ret
         static::$call__set_error_handler__ctx[0][] = $err;
 
         return true;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    protected static function okValue($value)
+    {
+        if ( $value instanceof static ) {
+            throw new LogicException(
+                [ 'Unable to `ok`: attempt to return `Ret` instance as value', $value ]
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * @return ErrorInterface
+     */
+    protected static function failError($error, $file = null, $line = null)
+    {
+        if ( $error instanceof static ) {
+            throw new LogicException(
+                [ 'Unable to `fail`: attempt to return `Ret` instance as error', $error ]
+            );
+        }
+
+        if ( $error instanceof ErrorInterface ) {
+            $e = $error;
+
+            if ( null !== $file ) {
+                $e = Err::aggregate([ $e ], $file, $line, '[FAIL]');
+            }
+
+        } elseif ( $error instanceof \Throwable ) {
+            $e = Err::wrap($error);
+
+            if ( null !== $file ) {
+                $e = Err::aggregate([ $e ], $file, $line, '[FAIL]');
+            }
+
+        } else {
+            $e = Err::new($error, $file, $line);
+        }
+
+        return $e;
     }
 }

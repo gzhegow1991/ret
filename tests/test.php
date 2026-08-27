@@ -528,7 +528,7 @@ $fn = function () use ($theDebug, $testN) {
             // > pass old ret object to parent scope without changes
             return \Gzhegow\Ret\Ret\Ret::pass($ret);
 
-            // > will wrap old object with instance that implements AggregateErrorInterface
+            // > will wrap old error to AggregateErrorInterface and then pass it to new ret
             // return \Gzhegow\Ret\Ret\Ret::pass($ret, 'My custom message if needed', __FILE__, __LINE__);
         }
 

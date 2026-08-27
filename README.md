@@ -371,7 +371,7 @@ $fn = function () use ($theDebug, $testN) {
     // > you write code once, but reuse it in few scenarios without copy/rewrite
     try {
         // > throws AgregateRuntimeException if error
-        $result = $ret->orThrow([ 'The password is invalid', $value ]);
+        $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
     }
     catch ( \Gzhegow\Ret\Exception\ExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2);
@@ -438,7 +438,7 @@ $fn = function () use ($theDebug, $testN) {
     $ret = $reg->firstOkOrResolvedFail();
 
     try {
-        $maybeResultMaybeNull = $ret->orThrow([ 'The password is invalid', $value ]);
+        $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
     }
     catch ( \Gzhegow\Ret\Exception\ExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2); // > [ object, 'The password is invalid', [ 1 => 123 ] ]
@@ -460,7 +460,7 @@ $fn = function () use ($theDebug, $testN) {
     $ret = $reg->firstFailOrResolvedOk();
 
     try {
-        $maybeResultMaybeNull = $ret->orThrow([ 'The password is invalid', $value ]);
+        $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
     }
     catch ( \Gzhegow\Ret\Exception\ExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2);
@@ -482,7 +482,7 @@ $fn = function () use ($theDebug, $testN) {
     $ret = $reg->firstOkOrResolvedFail();
 
     try {
-        $maybeResultMaybeNull = $ret->orThrow([ 'The password is invalid', $value ]);
+        $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
     }
     catch ( \Gzhegow\Ret\Exception\ExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2);
@@ -654,7 +654,7 @@ $fn = function () use ($theDebug, $testN) {
     $ret = $fnToString($value);
 
     try {
-        $maybeResultMaybeNull = $ret->orThrow([ 'The password is invalid', $value ]);
+        $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
     }
     catch ( \Gzhegow\Ret\Exception\ExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2); // > [ object, 'The password is invalid', [ 1 => 123 ] ]
@@ -1080,4 +1080,3 @@ $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 ');
 $test->run();
 ```
-

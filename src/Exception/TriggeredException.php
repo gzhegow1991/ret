@@ -30,7 +30,7 @@ class TriggeredException extends \ErrorException implements TriggeredExceptionIn
         $instance = new static(
             $err->severity, $err->message,
             $err->file, $err->line,
-            $err->code,
+            $err->payload, $err->code,
             $ex
         );
         $instance->traceShift(1);
@@ -42,7 +42,7 @@ class TriggeredException extends \ErrorException implements TriggeredExceptionIn
     public function __construct(
         int $severity, string $message,
         ?string $file = null, ?int $line = null,
-        ?int $code = null,
+        ?array $payload = null, ?int $code = null,
         ?\Throwable $previous = null
     )
     {
@@ -63,6 +63,8 @@ class TriggeredException extends \ErrorException implements TriggeredExceptionIn
                 $previous
             );
         }
+
+        $this->payload = $payload;
     }
 
 

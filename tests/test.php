@@ -3,12 +3,19 @@
 error_reporting(E_ALL);
 
 
+// >>> INIT
+
+\Gzhegow\Ret\Err::setFacade($errFacade = new \Gzhegow\Ret\ErrFacade());
+\Gzhegow\Ret\Ret\Ret::setFacade($retFacade = new \Gzhegow\Ret\Ret\RetFacade());
+
+
 // >>> TESTS
+
+$testN = 0;
 
 $theDebug = \Gzhegow\Lib\Lib::debug();
 $theTest = \Gzhegow\Lib\Lib::test();
 
-$testN = 0;
 
 // > TEST
 // > преобразуем стандартный warning в объект ошибки
@@ -203,7 +210,8 @@ $fn = function () use ($theDebug, $testN) {
 
     $ee = \Gzhegow\Ret\Err::aggregate($ee, __FILE__, __LINE__);
 
-    $bag = new \Gzhegow\Ret\ErrorBag\ErrorBag();
+
+    $bag = \Gzhegow\Ret\Err::bag();
 
     // > add error and mark it using tags
     $bag->addError($e1, [ 'tag1' ]);
@@ -389,14 +397,14 @@ $fn = function () use ($theDebug, $testN) {
     };
 
 
-    $reg = \Gzhegow\Ret\Ret\Ret::registry();
+    $bag = \Gzhegow\Ret\Ret\Ret::bag();
 
     $value = 123;
     $validValue = null
-        ?? $fnIsString($value)->track($reg)->orNull()
-        ?? $fnIsArray($value)->track($reg)->orNull();
+        ?? $fnIsString($value)->toBag($bag)->orNull()
+        ?? $fnIsArray($value)->toBag($bag)->orNull();
 
-    $ret = $reg->firstOkOrResolvedFail();
+    $ret = $bag->firstOkOrResolvedFail();
 
     try {
         $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
@@ -411,14 +419,14 @@ $fn = function () use ($theDebug, $testN) {
     echo "\n";
 
 
-    $reg = \Gzhegow\Ret\Ret\Ret::registry();
+    $bag = \Gzhegow\Ret\Ret\Ret::bag();
 
     $value = 123;
     $isOk = true
-        && $fnIsString($value)->track($reg)->isOk()
-        && $fnIsArray($value)->track($reg)->isOk();
+        && $fnIsString($value)->toBag($bag)->isOk()
+        && $fnIsArray($value)->toBag($bag)->isOk();
 
-    $ret = $reg->firstFailOrResolvedOk();
+    $ret = $bag->firstFailOrResolvedOk();
 
     try {
         $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
@@ -433,14 +441,14 @@ $fn = function () use ($theDebug, $testN) {
     echo "\n";
 
 
-    $reg = \Gzhegow\Ret\Ret\Ret::registry();
+    $bag = \Gzhegow\Ret\Ret\Ret::bag();
 
     $value = 123;
     $isOk = false
-        || $fnIsString($value)->track($reg)->isOk()
-        || $fnIsArray($value)->track($reg)->isOk();
+        || $fnIsString($value)->toBag($bag)->isOk()
+        || $fnIsArray($value)->toBag($bag)->isOk();
 
-    $ret = $reg->firstOkOrResolvedFail();
+    $ret = $bag->firstOkOrResolvedFail();
 
     try {
         $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
@@ -535,14 +543,14 @@ $fn = function () use ($theDebug, $testN) {
         return \Gzhegow\Ret\Ret\Ret::ok($valueString);
     };
 
-    $reg = \Gzhegow\Ret\Ret\Ret::registry();
+    $bag = \Gzhegow\Ret\Ret\Ret::bag();
 
     $value = 123;
     $validValue = null
-        ?? $fnIsStringNotEmpty($value)->track($reg)->orNull()
-        ?? $fnIsArrayNotEmpty($value)->track($reg)->orNull();
+        ?? $fnIsStringNotEmpty($value)->toBag($bag)->orNull()
+        ?? $fnIsArrayNotEmpty($value)->toBag($bag)->orNull();
 
-    $ret = $reg->firstOkOrResolvedFail();
+    $ret = $bag->firstOkOrResolvedFail();
 
     try {
         $ret->orThrow([ 'The password is invalid', $value ]);
@@ -653,7 +661,7 @@ $fn = function () use ($theDebug, $testN) {
 
     $ret1 = \Gzhegow\Ret\Ret\Ret::fail(1);
     $ret2 = \Gzhegow\Ret\Ret\Ret::fail(2);
-    $reg = \Gzhegow\Ret\Ret\Ret::registry();
+    $reg = \Gzhegow\Ret\Ret\Ret::bag();
     $reg->push($ret1);
     $reg->push($ret2);
     $rret = $reg->resolvedFail();
@@ -675,7 +683,7 @@ $fn = function () use ($theDebug, $testN) {
 
         $ret1 = \Gzhegow\Ret\Ret\Ret::fail(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1);
         $ret2 = \Gzhegow\Ret\Ret\Ret::fail(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2);
-        $reg = \Gzhegow\Ret\Ret\Ret::registry();
+        $reg = \Gzhegow\Ret\Ret\Ret::bag();
         $reg->push($ret1);
         $reg->push($ret2);
         $rret = $reg->resolvedFail();
@@ -751,15 +759,15 @@ $fn = function () use ($theDebug, $testN) {
     $fnFopen = \Gzhegow\Ret\Ret\Ret::fn('fopen');
 
 
-    $reg = \Gzhegow\Ret\Ret\Ret::registry();
+    $bag = \Gzhegow\Ret\Ret\Ret::bag();
 
     $value = 123;
     $validValue = null
-        ?? $fnFopen([ '1.txt', 'r' ])->track($reg)->orNull()
-        ?? $fnFopen([ '2.txt', 'r' ])->track($reg)->orNull()
-        ?? $fnFopen([ '3.txt', 'r' ])->track($reg)->orNull();
+        ?? $fnFopen([ '1.txt', 'r' ])->toBag($bag)->orNull()
+        ?? $fnFopen([ '2.txt', 'r' ])->toBag($bag)->orNull()
+        ?? $fnFopen([ '3.txt', 'r' ])->toBag($bag)->orNull();
 
-    $ret = $reg->firstOkOrResolvedFail();
+    $ret = $bag->firstOkOrResolvedFail();
 
     try {
         $ret->orThrow();
@@ -774,18 +782,20 @@ $fn = function () use ($theDebug, $testN) {
     echo "\n";
 
 
-    $reg = \Gzhegow\Ret\Ret\Ret::registry();
+    $bag = \Gzhegow\Ret\Ret\Ret::bag();
 
     $value = 123;
     $validValue = null
-        ?? $fnFopen([ '1.txt', 'r' ])->track($reg)->orNull()
-        ?? $fnFopen([ __FILE__, 'r' ])->track($reg)->orNull()
-        ?? $fnFopen([ '3.txt', 'r' ])->track($reg)->orNull();
+        ?? $fnFopen([ '1.txt', 'r' ])->toBag($bag)->orNull()
+        ?? $fnFopen([ __FILE__, 'r' ])->toBag($bag)->orNull()
+        ?? $fnFopen([ '3.txt', 'r' ])->toBag($bag)->orNull();
 
-    $ret = $reg->firstOkOrResolvedFail();
+    $ret = $bag->firstOkOrResolvedFail();
 
-    $fh = $ret->orThrow([ 'The password is invalid', $value ]);
+    $fh = $ret->orThrow(); // > there's no throw cause of __FILE__ is existing one
     $theDebug->dump_value($fh);
+
+    // > close the file
     fclose($fh);
 };
 $test = $theTest->newCase($fn);
@@ -839,13 +849,13 @@ $fn = function () use ($theDebug, $testN) {
         // // > $value == $val
         ->failSwitch($values = [ '\WP_Error' ])
         // // > $value === $val
-        // ->failIfMatch($values = [ '\WP_Error' ])
+        // ->failMatch($values = [ '\WP_Error' ])
         // // > $class === get_class($val)
         // ->failIfClass($classes = [ '\WP_Error' ])
         // // > is_a($val, $class)
         // ->failIfInstanceOf($classes = [ '\WP_Error' ])
         // // > callable
-        // ->failIfCallback(
+        // ->ifCallback(
         //     static function ($val) {
         //         return \Gzhegow\Ret\Ret\Ret::fail('Error');
         //     }
@@ -854,22 +864,20 @@ $fn = function () use ($theDebug, $testN) {
     $theDebug->dump_value($wrapper);
     echo "\n";
 
-    $fnSomeWordpressFunction = function ($arg) {
-        return $arg;
-    };
-
     // > wrap function, then call
+    $fnSomeWordpressFunction = function () { return '\WP_Error'; };
     $ffnSomeWordpressFunction = \Gzhegow\Ret\Ret\Ret::fn($fnSomeWordpressFunction, $wrapper);
-    $ret = $ffnSomeWordpressFunction([ $arg = '\WP_Error' ]);
+    $ret = $ffnSomeWordpressFunction();
     //
     // > or just call it directly
-    // $ret = \Gzhegow\Ret\Ret\Ret::fnCall($fnSomeWordpressFunction, [ $arg = '\WP_Error' ], $wrapper);
+    // $fnSomeWordpressFunction = function () { return '\WP_Error'; };
+    // $ret = \Gzhegow\Ret\Ret\Ret::fnCall($fnSomeWordpressFunction, [], $wrapper);
 
     try {
-        $ret->orThrow([ 'The result should be any, but \WP_Error', $arg ]);
+        $ret->orThrow([ 'The result should be any, but \WP_Error' ]);
     }
     catch ( \Gzhegow\Ret\Exception\ExceptionInterface $e ) {
-        $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2);
+        $theDebug->dump_array([ $e, $e->getMessage() ], 2);
     }
 };
 $test = $theTest->newCase($fn);
@@ -878,14 +886,14 @@ $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
 
 { object # Gzhegow\Ret\Ret\RetWrapper }
 
-[ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The result should be any, but \WP_Error", [ 1 => "\WP_Error" ] ]
+[ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The result should be any, but \WP_Error" ]
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 "TEST ' . $testN . '"
 
 { object # Gzhegow\Ret\Ret\RetWrapper }
 
-[ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The result should be any, but \WP_Error", [ 1 => "\WP_Error" ] ]
+[ "{ object(stringable) # Gzhegow\Ret\Exception\AggregateRuntimeException }", "The result should be any, but \WP_Error" ]
 ');
 $test->run();
 
@@ -908,7 +916,7 @@ $fn = function () use ($theDebug, $testN) {
     };
 
     // > PRODUCTION MODE
-    // > disable stack trace args (reduce memory and processor overhead)
+    // > disable backtrace args (reduce memory and processor overhead)
     $old = ini_set('zend.exception_ignore_args', 1);
 
     try {
@@ -950,7 +958,7 @@ $fn = function () use ($theDebug, $testN) {
                 [ 0.007, 0.006 ],
                 [ 0.015, 0.009 ],
                 [ 0.025, 0.014 ],
-                [ 0.078, 0.036 ],
+                [ 0.078, 0.037 ],
             ],
         ];
 
@@ -1036,7 +1044,7 @@ $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 | 4 | ^7.3        | Exception                        | 10000         | 30          | 0.017    | 0.025    |
 | 5 | ^7.3        | Gzhegow\Ret\Error\PHP7\MainError | 10000         | 30          | 0.012    | 0.014    |
 | 6 | ^7.3        | Exception                        | 10000         | 100         | 0.05     | 0.078    |
-| 7 | ^7.3        | Gzhegow\Ret\Error\PHP7\MainError | 10000         | 100         | 0.03     | 0.036    |
+| 7 | ^7.3        | Gzhegow\Ret\Error\PHP7\MainError | 10000         | 100         | 0.03     | 0.037    |
 +---+-------------+----------------------------------+---------------+-------------+----------+----------+
 ');
 $test->run();

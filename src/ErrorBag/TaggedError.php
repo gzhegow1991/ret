@@ -18,4 +18,27 @@ class TaggedError implements TaggedErrorInterface
      * @var array<string, bool>
      */
     public $tags = [];
+
+
+    /**
+     * @param T                        $error
+     * @param array<string, bool>|null $tags
+     *
+     * @return static
+     */
+    public static function make($error, $tags = null)
+    {
+        $tags = $tags ?? [];
+
+        $instance = new static();
+        $instance->error = $error;
+        $instance->tags = $tags;
+
+        return $instance;
+    }
+
+    protected function __construct()
+    {
+    }
+
 }

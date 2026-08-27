@@ -7,7 +7,7 @@ use Gzhegow\Ret\Exception\LogicException;
 use Gzhegow\Ret\Exception\RuntimeException;
 
 
-class RetRegistry
+class RetBag implements RetBagInterface
 {
     /**
      * @var Ret[]

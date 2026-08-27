@@ -3,8 +3,8 @@
 namespace Gzhegow\Ret\ErrorBag;
 
 use Gzhegow\Ret\Err;
-use Gzhegow\Ret\Exception\LogicException;
 use Gzhegow\Ret\Error\ErrorInterface;
+use Gzhegow\Ret\Exception\LogicException;
 use Gzhegow\Ret\Error\SingleErrorInterface;
 use Gzhegow\Ret\Error\AggregateErrorInterface;
 
@@ -24,6 +24,16 @@ class ErrorBag implements ErrorBagInterface
      * @var array<int, array<string, bool>>
      */
     protected $tags = [];
+
+
+    public static function new()
+    {
+        return new static();
+    }
+
+    protected function __construct()
+    {
+    }
 
 
     /**
@@ -315,9 +325,10 @@ class ErrorBag implements ErrorBagInterface
         $taggedErrors = [];
 
         foreach ( $errors as $splId => $error ) {
-            $taggedError = new TaggedError();
-            $taggedError->error = $this->errors[$splId];
-            $taggedError->tags = $this->tags[$splId];
+            $taggedError = TaggedError::make(
+                $this->errors[$splId],
+                $this->tags[$splId]
+            );
 
             $taggedErrors[$splId] = $taggedError;
         }

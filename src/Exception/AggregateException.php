@@ -3,8 +3,8 @@
 namespace Gzhegow\Ret\Exception;
 
 use Gzhegow\Ret\Err;
-use Gzhegow\Ret\ErrorMessage\ErrorMessage;
 use Gzhegow\Ret\Error\ErrorInterface;
+use Gzhegow\Ret\ErrorMessage\ErrorMessage;
 use Gzhegow\Ret\Error\AggregateErrorInterface;
 
 

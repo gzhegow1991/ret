@@ -6,15 +6,15 @@ use Gzhegow\Ret\Exception\LogicException;
 use Gzhegow\Ret\Exception\RuntimeException;
 
 
-class RetWrapper
+class RetWrapper implements RetWrapperInterface
 {
     /**
-     * @var array
+     * @var array{ 0: callable, 1: array }[]
      */
     protected $rules = [];
 
     /**
-     * @var mixed
+     * @var array{ 0?: mixed }
      */
     protected $value = [];
     /**
@@ -42,14 +42,14 @@ class RetWrapper
 
     public function okSwitch(array $values)
     {
-        $this->rules[] = [ 'runOkSwitch', $values ];
+        $this->rules[] = [ [ $this, 'runOkSwitch' ], [ $values ] ];
 
         return $this;
     }
 
     public function okMatch(array $values)
     {
-        $this->rules[] = [ 'runOkMatch', $values ];
+        $this->rules[] = [ [ $this, 'runOkMatch' ], [ $values ] ];
 
         return $this;
     }
@@ -67,7 +67,7 @@ class RetWrapper
             }
         }
 
-        $this->rules[] = [ 'runOkIfClass', $classes ];
+        $this->rules[] = [ [ $this, 'runOkIfClass' ], [ $classes ] ];
 
         return $this;
     }
@@ -85,7 +85,7 @@ class RetWrapper
             }
         }
 
-        $this->rules[] = [ 'runOkIfInstanceOf', $classes ];
+        $this->rules[] = [ [ $this, 'runOkIfInstanceOf' ], [ $classes ] ];
 
         return $this;
     }
@@ -93,14 +93,14 @@ class RetWrapper
 
     public function failSwitch(array $values)
     {
-        $this->rules[] = [ 'runFailSwitch', $values ];
+        $this->rules[] = [ [ $this, 'runFailSwitch' ], [ $values ] ];
 
         return $this;
     }
 
     public function failMatch(array $values)
     {
-        $this->rules[] = [ 'runFailMatch', $values ];
+        $this->rules[] = [ [ $this, 'runFailMatch' ], [ $values ] ];
 
         return $this;
     }
@@ -118,7 +118,7 @@ class RetWrapper
             }
         }
 
-        $this->rules[] = [ 'runFailIfClass', $classes ];
+        $this->rules[] = [ [ $this, 'runFailIfClass' ], [ $classes ] ];
 
         return $this;
     }
@@ -136,7 +136,7 @@ class RetWrapper
             }
         }
 
-        $this->rules[] = [ 'runFailIfInstanceOf', $classes ];
+        $this->rules[] = [ [ $this, 'runFailIfInstanceOf' ], [ $classes ] ];
 
         return $this;
     }
@@ -148,9 +148,9 @@ class RetWrapper
      *
      * @return static
      */
-    public function ifCallback($fn, array $fnArgs = [])
+    public function useCallback($fn, array $fnArgs = [])
     {
-        $this->rules[] = [ 'runIfCallback', $fn, $fnArgs ];
+        $this->rules[] = [ [ $this, 'runUseCallback' ], [ $fn, $fnArgs ] ];
 
         return $this;
     }
@@ -276,7 +276,7 @@ class RetWrapper
     }
 
 
-    protected function runIfCallback($fn, array $fnArgs = [])
+    protected function runUseCallback($fn, array $fnArgs = [])
     {
         array_unshift($fnArgs, $this->value);
 
@@ -338,11 +338,8 @@ class RetWrapper
         $instance->file = $file;
         $instance->line = $line;
 
-        foreach ( $this->rules as $rule ) {
-            $fn = array_shift($rule);
-            $fnArgs = $rule;
-
-            $ret = call_user_func_array([ $instance, $fn ], $fnArgs);
+        foreach ( $this->rules as [$fn, $fnArgs] ) {
+            $ret = call_user_func_array([ $instance, $fn[1] ], $fnArgs);
 
             if ( $ret instanceof Ret ) {
                 return $ret;

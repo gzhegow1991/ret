@@ -16,6 +16,7 @@ class TriggeredError extends AbstractError implements TriggeredErrorInterface
      * @param string      $message
      * @param string|null $file
      * @param int|null    $line
+     * @param array|null  $payload
      * @param int|null    $code
      *
      * @return static
@@ -23,7 +24,7 @@ class TriggeredError extends AbstractError implements TriggeredErrorInterface
     public static function make(
         int $severity, string $message,
         ?string $file = null, ?int $line = null,
-        ?int $code = null
+        ?array $payload = null, ?int $code = null
     ) : static
     {
         $instance = new static();
@@ -35,6 +36,8 @@ class TriggeredError extends AbstractError implements TriggeredErrorInterface
         //
         $instance->code = $code ?? -1;
         $instance->message = $message;
+        //
+        $instance->payload = $payload;
 
         return $instance;
     }

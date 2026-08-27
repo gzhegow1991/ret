@@ -325,7 +325,7 @@ class ErrorBag implements ErrorBagInterface
         $taggedErrors = [];
 
         foreach ( $errors as $splId => $error ) {
-            $taggedError = TaggedError::make(
+            $taggedError = Err::tagged(
                 $this->errors[$splId],
                 $this->tags[$splId]
             );

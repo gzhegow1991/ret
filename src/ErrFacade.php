@@ -145,6 +145,21 @@ class ErrFacade implements ErrFacadeInterface
 
 
     /**
+     * @param ErrorInterface           $error
+     * @param array<string, bool>|null $tags
+     *
+     * @return \Gzhegow\Ret\ErrorBag\TaggedErrorInterface
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function tagged($error, $tags = null)
+    {
+        return (PHP_VERSION_ID >= 80000)
+            ? \Gzhegow\Ret\ErrorBag\PHP8\TaggedError::make($error, $tags)
+            : \Gzhegow\Ret\ErrorBag\PHP7\TaggedError::make($error, $tags);
+    }
+
+
+    /**
      * @return ErrorInterface
      * @noinspection PhpFullyQualifiedNameUsageInspection
      */

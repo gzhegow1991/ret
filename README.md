@@ -313,26 +313,26 @@ $test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
 [ "{ object # Gzhegow\Ret\Error\PHP8\MainError }", "Hello 1", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP8\MainError }", "Hello 2", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP8\AggregateError }", "[ AGGREGATE ERROR # TOTAL 2 ]", -1, NULL ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\AggregateError }", [ "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP8\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP8\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP8\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\AggregateError }", [ "tag3" => TRUE ] ]
 
 [ "{ object # Gzhegow\Ret\Error\PHP8\MainError }", "Hello 1", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP8\MainError }", "Hello 2", -1, NULL ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP8\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP8\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
 
 [ "{ object # Gzhegow\Ret\Error\PHP8\MainError }", "Hello 1", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP8\AggregateError }", "[ AGGREGATE ERROR # TOTAL 2 ]", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP8\MainError }", "Hello 2", -1, NULL ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\AggregateError }", [ "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP8\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP8\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\AggregateError }", [ "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP8\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
 
 [ "{ object # Gzhegow\Ret\Error\PHP8\MainError }", "Hello 1", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP8\MainError }", "Hello 2", -1, NULL ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP8\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP8\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP8\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
 ');
 $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 "TEST ' . $testN . '"
@@ -340,26 +340,26 @@ $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "Hello 1", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "Hello 2", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP7\AggregateError }", "[ AGGREGATE ERROR # TOTAL 2 ]", -1, NULL ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\AggregateError }", [ "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP7\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP7\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP7\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\AggregateError }", [ "tag3" => TRUE ] ]
 
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "Hello 1", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "Hello 2", -1, NULL ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP7\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP7\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
 
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "Hello 1", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP7\AggregateError }", "[ AGGREGATE ERROR # TOTAL 2 ]", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "Hello 2", -1, NULL ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\AggregateError }", [ "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP7\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP7\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\AggregateError }", [ "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP7\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
 
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "Hello 1", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "Hello 2", -1, NULL ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
-[ "{ object # Gzhegow\Ret\ErrorBag\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP7\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag1" => TRUE, "tag3" => TRUE ] ]
+[ "{ object # Gzhegow\Ret\ErrorBag\PHP7\TaggedError }", "{ object # Gzhegow\Ret\Error\PHP7\MainError }", [ "tag2" => TRUE, "tag3" => TRUE ] ]
 ');
 $test->run();
 
@@ -1000,7 +1000,7 @@ $fn = function () use ($theDebug, $testN) {
                 [ 0.058, 0.036 ],
             ],
             '^7.3' => [
-                [ 0.007, 0.006 ],
+                [ 0.008, 0.006 ],
                 [ 0.015, 0.009 ],
                 [ 0.025, 0.014 ],
                 [ 0.078, 0.037 ],
@@ -1082,7 +1082,7 @@ $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 +---+-------------+----------------------------------+---------------+-------------+----------+----------+
 |   | PHP Version | Object Type                      | Objects Count | Trace Level | Time Min | Time Max |
 +---+-------------+----------------------------------+---------------+-------------+----------+----------+
-| 0 | ^7.3        | Exception                        | 10000         | 5           | 0.005    | 0.007    |
+| 0 | ^7.3        | Exception                        | 10000         | 5           | 0.005    | 0.008    |
 | 1 | ^7.3        | Gzhegow\Ret\Error\PHP7\MainError | 10000         | 5           | 0.004    | 0.006    |
 | 2 | ^7.3        | Exception                        | 10000         | 15          | 0.01     | 0.015    |
 | 3 | ^7.3        | Gzhegow\Ret\Error\PHP7\MainError | 10000         | 15          | 0.007    | 0.009    |

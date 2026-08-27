@@ -126,6 +126,18 @@ abstract class Err
 
 
     /**
+     * @param ErrorInterface           $error
+     * @param array<string, bool>|null $tags
+     *
+     * @return \Gzhegow\Ret\ErrorBag\TaggedErrorInterface
+     */
+    public static function tagged($error, $tags = null)
+    {
+        return static::$facade->tagged($error, $tags);
+    }
+
+
+    /**
      * @return ErrorInterface
      */
     public static function wrap(\Throwable $e)

@@ -1,17 +1,15 @@
 <?php
 
-namespace Gzhegow\Ret\ErrorBag;
+namespace Gzhegow\Ret\ErrorBag\PHP7;
 
 use Gzhegow\Ret\Error\ErrorInterface;
+use Gzhegow\Ret\ErrorBag\TaggedErrorInterface;
 
 
-/**
- * @template-covariant T of ErrorInterface
- */
 class TaggedError implements TaggedErrorInterface
 {
     /**
-     * @var T
+     * @var ErrorInterface
      */
     public $error;
     /**
@@ -21,7 +19,7 @@ class TaggedError implements TaggedErrorInterface
 
 
     /**
-     * @param T                        $error
+     * @param ErrorInterface           $error
      * @param array<string, bool>|null $tags
      *
      * @return static

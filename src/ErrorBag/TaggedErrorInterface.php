@@ -1,8 +1,8 @@
 <?php
 
-namespace Gzhegow\Ret\Core\ErrorBag;
+namespace Gzhegow\Ret\ErrorBag;
 
-use Gzhegow\Ret\Core\Error\ErrorInterface;
+use Gzhegow\Ret\Error\ErrorInterface;
 
 
 /**

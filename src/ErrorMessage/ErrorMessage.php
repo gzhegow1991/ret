@@ -1,9 +1,9 @@
 <?php
 
-namespace Gzhegow\Ret\Core\ErrorMessage;
+namespace Gzhegow\Ret\ErrorMessage;
 
-use Gzhegow\Ret\Core\Err;
-use Gzhegow\Ret\Core\Error\ErrorInterface;
+use Gzhegow\Ret\Err;
+use Gzhegow\Ret\Error\ErrorInterface;
 use Gzhegow\Ret\Exception\ExceptionInterface;
 
 

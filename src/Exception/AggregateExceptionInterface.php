@@ -6,12 +6,12 @@ namespace Gzhegow\Ret\Exception;
 interface AggregateExceptionInterface extends ExceptionInterface
 {
     /**
-     * @return \Gzhegow\Ret\Core\Error\ErrorInterface[]
+     * @return \Gzhegow\Ret\Error\ErrorInterface[]
      */
     public function getErrors() : array;
 
     /**
-     * @return \Generator<array, \Gzhegow\Ret\Core\Error\ErrorInterface[]>
+     * @return \Generator<array, \Gzhegow\Ret\Error\ErrorInterface[]>
      */
     public function getErrorsRecursive() : iterable;
 }

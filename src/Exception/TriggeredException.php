@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Ret\Exception;
 
-use Gzhegow\Ret\Core\Err;
-use Gzhegow\Ret\Core\Error\TriggeredErrorInterface;
+use Gzhegow\Ret\Err;
+use Gzhegow\Ret\Error\TriggeredErrorInterface;
 
 
 class TriggeredException extends \ErrorException implements TriggeredExceptionInterface

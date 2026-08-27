@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Ret\Core\ErrorMessage;
+namespace Gzhegow\Ret\ErrorMessage;
 
 
 /**

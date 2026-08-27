@@ -1,10 +1,10 @@
 <?php
 
-namespace Gzhegow\Ret\Core\ErrorBag;
+namespace Gzhegow\Ret\ErrorBag;
 
-use Gzhegow\Ret\Core\Error\ErrorInterface;
-use Gzhegow\Ret\Core\Error\SingleErrorInterface;
-use Gzhegow\Ret\Core\Error\AggregateErrorInterface;
+use Gzhegow\Ret\Error\ErrorInterface;
+use Gzhegow\Ret\Error\SingleErrorInterface;
+use Gzhegow\Ret\Error\AggregateErrorInterface;
 
 
 interface ErrorBagInterface

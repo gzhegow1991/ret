@@ -1,19 +1,21 @@
 <?php
 
-namespace Gzhegow\Ret\Core;
+namespace Gzhegow\Ret;
 
-use Gzhegow\Ret\Core\Ret\Ret;
+use Gzhegow\Ret\Ret\Ret;
+use Gzhegow\Ret\Ret\RetRegistry;
+use Gzhegow\Ret\ErrorBag\ErrorBag;
 use Gzhegow\Ret\Exception\Exception;
+use Gzhegow\Ret\Error\ErrorInterface;
 use Gzhegow\Ret\Exception\LogicException;
-use Gzhegow\Ret\Core\Error\ErrorInterface;
+use Gzhegow\Ret\Error\MainErrorInterface;
+use Gzhegow\Ret\ErrorMessage\ErrorMessage;
 use Gzhegow\Ret\Exception\TriggeredException;
 use Gzhegow\Ret\Exception\AggregateException;
-use Gzhegow\Ret\Core\Error\MainErrorInterface;
-use Gzhegow\Ret\Core\ErrorMessage\ErrorMessage;
-use Gzhegow\Ret\Core\Error\AggregateErrorInterface;
-use Gzhegow\Ret\Core\Error\TriggeredErrorInterface;
+use Gzhegow\Ret\Error\AggregateErrorInterface;
+use Gzhegow\Ret\Error\TriggeredErrorInterface;
+use Gzhegow\Ret\ErrorMessage\ErrorMessageInterface;
 use Gzhegow\Ret\Exception\AggregateExceptionInterface;
-use Gzhegow\Ret\Core\ErrorMessage\ErrorMessageInterface;
 
 
 abstract class Err
@@ -29,8 +31,8 @@ abstract class Err
     public static function new($from, $file = null, $line = null)
     {
         return (PHP_VERSION_ID >= 80000)
-            ? \Gzhegow\Ret\Core\Error\PHP8\MainError::make($from, $file, $line)
-            : \Gzhegow\Ret\Core\Error\PHP7\MainError::make($from, $file, $line);
+            ? \Gzhegow\Ret\Error\PHP8\MainError::make($from, $file, $line)
+            : \Gzhegow\Ret\Error\PHP7\MainError::make($from, $file, $line);
     }
 
     /**
@@ -44,8 +46,8 @@ abstract class Err
     public static function code($from, $file = null, $line = null)
     {
         return (PHP_VERSION_ID >= 80000)
-            ? \Gzhegow\Ret\Core\Error\PHP8\MainError::code($from, $file, $line)
-            : \Gzhegow\Ret\Core\Error\PHP7\MainError::code($from, $file, $line);
+            ? \Gzhegow\Ret\Error\PHP8\MainError::code($from, $file, $line)
+            : \Gzhegow\Ret\Error\PHP7\MainError::code($from, $file, $line);
     }
 
     /**
@@ -59,8 +61,8 @@ abstract class Err
     public static function message($from, $file = null, $line = null)
     {
         return (PHP_VERSION_ID >= 80000)
-            ? \Gzhegow\Ret\Core\Error\PHP8\MainError::message($from, $file, $line)
-            : \Gzhegow\Ret\Core\Error\PHP7\MainError::message($from, $file, $line);
+            ? \Gzhegow\Ret\Error\PHP8\MainError::message($from, $file, $line)
+            : \Gzhegow\Ret\Error\PHP7\MainError::message($from, $file, $line);
     }
 
 
@@ -79,8 +81,8 @@ abstract class Err
     )
     {
         return (PHP_VERSION_ID >= 80000)
-            ? \Gzhegow\Ret\Core\Error\PHP8\AggregateError::make($children, $file, $line, $message)
-            : \Gzhegow\Ret\Core\Error\PHP7\AggregateError::make($children, $file, $line, $message);
+            ? \Gzhegow\Ret\Error\PHP8\AggregateError::make($children, $file, $line, $message)
+            : \Gzhegow\Ret\Error\PHP7\AggregateError::make($children, $file, $line, $message);
     }
 
 
@@ -101,8 +103,8 @@ abstract class Err
     )
     {
         return (PHP_VERSION_ID >= 80000)
-            ? \Gzhegow\Ret\Core\Error\PHP8\TriggeredError::make($severity, $message, $file, $line, $code)
-            : \Gzhegow\Ret\Core\Error\PHP7\TriggeredError::make($severity, $message, $file, $line, $code);
+            ? \Gzhegow\Ret\Error\PHP8\TriggeredError::make($severity, $message, $file, $line, $code)
+            : \Gzhegow\Ret\Error\PHP7\TriggeredError::make($severity, $message, $file, $line, $code);
     }
 
 
@@ -114,18 +116,18 @@ abstract class Err
     {
         if ( $e instanceof AggregateExceptionInterface ) {
             $instance = (PHP_VERSION_ID >= 80000)
-                ? \Gzhegow\Ret\Core\Error\PHP8\AggregateError::wrap($e)
-                : \Gzhegow\Ret\Core\Error\PHP7\AggregateError::wrap($e);
+                ? \Gzhegow\Ret\Error\PHP8\AggregateError::wrap($e)
+                : \Gzhegow\Ret\Error\PHP7\AggregateError::wrap($e);
 
         } elseif ( $e instanceof \ErrorException ) {
             $instance = (PHP_VERSION_ID >= 80000)
-                ? \Gzhegow\Ret\Core\Error\PHP8\TriggeredError::wrap($e)
-                : \Gzhegow\Ret\Core\Error\PHP7\TriggeredError::wrap($e);
+                ? \Gzhegow\Ret\Error\PHP8\TriggeredError::wrap($e)
+                : \Gzhegow\Ret\Error\PHP7\TriggeredError::wrap($e);
 
         } else {
             $instance = (PHP_VERSION_ID >= 80000)
-                ? \Gzhegow\Ret\Core\Error\PHP8\MainError::wrap($e)
-                : \Gzhegow\Ret\Core\Error\PHP7\MainError::wrap($e);
+                ? \Gzhegow\Ret\Error\PHP8\MainError::wrap($e)
+                : \Gzhegow\Ret\Error\PHP7\MainError::wrap($e);
         }
 
         return $instance;
@@ -233,6 +235,85 @@ abstract class Err
 
 
     /**
+     * @param ErrorInterface|\Throwable|ErrorBag|Ret|RetRegistry $e
+     *
+     * @return ErrorInterface[]
+     */
+    public static function getErrors($e) : array
+    {
+        if ( $e instanceof ErrorInterface ) {
+            return [ $e ];
+
+        } elseif ( $e instanceof \Throwable ) {
+            return [ Err::wrap($e) ];
+
+        } elseif ( $e instanceof ErrorBag ) {
+            return $e->getErrors();
+        }
+
+        throw new \LogicException('The `e` is unknown');
+    }
+
+    /**
+     * @param ErrorInterface|\Throwable|Ret|RetRegistry $e
+     *
+     * @return \Generator<array, ErrorInterface[]>
+     */
+    public static function iterErrors($e) : iterable
+    {
+        $parents = static::getErrors($e);
+        if ( [] === $parents ) {
+            return;
+        }
+
+        $parentsReversed = array_reverse($parents, true);
+
+        /**
+         * @var ErrorInterface[] $stack
+         * @var int[][]          $stackPath
+         */
+        $stack = $parentsReversed;
+        $stackPath = [];
+
+        foreach ( $parentsReversed as $i => $c ) {
+            $stackPath[] = [ $i ];
+        }
+
+        while ( [] !== $stack ) {
+            $current = array_pop($stack);
+            $currentPath = array_pop($stackPath);
+
+            yield $currentPath => $current;
+
+            if ( $current instanceof AggregateErrorInterface ) {
+                $currentChildrenReversed = array_reverse($current->errors, true);
+
+                foreach ( $currentChildrenReversed as $i => $child ) {
+                    $currentFullpath = $currentPath;
+                    $currentFullpath[] = $i;
+
+                    $stack[] = $child;
+                    $stackPath[] = $currentFullpath;
+                }
+
+            } else {
+                if ( null !== $current->throwable ) {
+                    if ( $ex = $current->throwable->getPrevious() ) {
+                        $child = Err::wrap($ex);
+
+                        $currentFullpath = $currentPath;
+                        $currentFullpath[] = 0;
+
+                        $stack[] = $child;
+                        $stackPath[] = $currentFullpath;
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
      * @param ErrorInterface|\Throwable $e
      *
      * @return ErrorInterface[]
@@ -242,15 +323,18 @@ abstract class Err
         if ( $e instanceof AggregateErrorInterface ) {
             return $e->errors;
 
-        } elseif ( $e instanceof AggregateExceptionInterface ) {
-            return $e->getErrors();
-
         } elseif ( $e instanceof \Throwable ) {
-            if ( $ex = $e->getPrevious() ) {
+            if ( $e instanceof AggregateExceptionInterface ) {
+                return $e->getErrors();
+
+            } elseif ( $ex = $e->getPrevious() ) {
                 return [ Err::wrap($ex) ];
             }
 
             return [];
+
+        } elseif ( $e instanceof ErrorBag ) {
+            return $e->getErrors();
         }
 
         throw new \LogicException('The `e` is unknown');
@@ -261,7 +345,7 @@ abstract class Err
      *
      * @return \Generator<array, ErrorInterface[]>
      */
-    public static function getChildrenRecursive($e) : iterable
+    public static function iterChildren($e) : iterable
     {
         $children = static::getChildren($e);
         if ( [] === $children ) {
@@ -285,28 +369,32 @@ abstract class Err
             $current = array_pop($stack);
             $currentPath = array_pop($stackPath);
 
-            yield $currentPath => $current;
-
             if ( $current instanceof AggregateErrorInterface ) {
                 $currentChildrenReversed = array_reverse($current->errors, true);
 
-                foreach ( $currentChildrenReversed as $i => $e ) {
+                foreach ( $currentChildrenReversed as $i => $child ) {
                     $currentFullpath = $currentPath;
                     $currentFullpath[] = $i;
 
-                    $stack[] = $e;
+                    $stack[] = $child;
                     $stackPath[] = $currentFullpath;
                 }
 
             } else {
-                if ( null !== $current->throwable ) {
-                    if ( $ex = $current->throwable->getPrevious() ) {
-                        $e = Err::wrap($ex);
+                if ( null === $current->throwable ) {
+                    yield $currentPath => $current;
+
+                } else {
+                    if ( null === ($ex = $current->throwable->getPrevious()) ) {
+                        yield $currentPath => $current;
+
+                    } else {
+                        $child = Err::wrap($ex);
 
                         $currentFullpath = $currentPath;
                         $currentFullpath[] = 0;
 
-                        $stack[] = $e;
+                        $stack[] = $child;
                         $stackPath[] = $currentFullpath;
                     }
                 }

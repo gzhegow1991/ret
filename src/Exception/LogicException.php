@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Ret\Exception;
 
-use Gzhegow\Ret\Core\Err;
-use Gzhegow\Ret\Core\Error\MainErrorInterface;
+use Gzhegow\Ret\Err;
+use Gzhegow\Ret\Error\MainErrorInterface;
 
 
 class LogicException extends \LogicException implements MainExceptionInterface

@@ -2,10 +2,10 @@
 
 namespace Gzhegow\Ret\Exception;
 
-use Gzhegow\Ret\Core\Err;
-use Gzhegow\Ret\Core\ErrorMessage\ErrorMessage;
-use Gzhegow\Ret\Core\Error\ErrorInterface;
-use Gzhegow\Ret\Core\Error\AggregateErrorInterface;
+use Gzhegow\Ret\Err;
+use Gzhegow\Ret\ErrorMessage\ErrorMessage;
+use Gzhegow\Ret\Error\ErrorInterface;
+use Gzhegow\Ret\Error\AggregateErrorInterface;
 
 
 class AggregateException extends \Exception implements AggregateExceptionInterface

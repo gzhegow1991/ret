@@ -1,12 +1,12 @@
 <?php
 
-namespace Gzhegow\Ret\Core\ErrorBag;
+namespace Gzhegow\Ret\ErrorBag;
 
-use Gzhegow\Ret\Core\Err;
+use Gzhegow\Ret\Err;
 use Gzhegow\Ret\Exception\LogicException;
-use Gzhegow\Ret\Core\Error\ErrorInterface;
-use Gzhegow\Ret\Core\Error\SingleErrorInterface;
-use Gzhegow\Ret\Core\Error\AggregateErrorInterface;
+use Gzhegow\Ret\Error\ErrorInterface;
+use Gzhegow\Ret\Error\SingleErrorInterface;
+use Gzhegow\Ret\Error\AggregateErrorInterface;
 
 
 class ErrorBag implements ErrorBagInterface
@@ -47,7 +47,7 @@ class ErrorBag implements ErrorBagInterface
      * @param AggregateErrorInterface[] $parents
      * @param string[]                  $tags
      */
-    public static function children(array $parents = [], array $tags = [])
+    public static function collectParents(array $parents = [], array $tags = [])
     {
         $instance = new static();
 

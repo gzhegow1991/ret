@@ -1,9 +1,8 @@
 <?php
 
-namespace Gzhegow\Ret\Core\Ret;
+namespace Gzhegow\Ret\Ret;
 
 use Gzhegow\Ret\Exception\LogicException;
-use Gzhegow\Ret\Core\Error\ErrorInterface;
 use Gzhegow\Ret\Exception\RuntimeException;
 
 
@@ -36,17 +35,72 @@ class RetWrapper
         return new static();
     }
 
-
-    public function failIfSwitch(array $values)
+    protected function __construct()
     {
-        $this->rules[] = [ 'runFailIfSwitch', $values ];
+    }
+
+
+    public function okSwitch(array $values)
+    {
+        $this->rules[] = [ 'runOkSwitch', $values ];
 
         return $this;
     }
 
-    public function failIfMatch(array $values)
+    public function okMatch(array $values)
     {
-        $this->rules[] = [ 'runFailIfMatch', $values ];
+        $this->rules[] = [ 'runOkMatch', $values ];
+
+        return $this;
+    }
+
+    /**
+     * @param string[] $classes
+     */
+    public function okIfClass(array $classes)
+    {
+        foreach ( $classes as $i => $c ) {
+            if ( ! (is_string($c) && ('' !== $c)) ) {
+                throw new LogicException(
+                    [ 'Each of `classes` should be string, non-empty', $i, $classes ]
+                );
+            }
+        }
+
+        $this->rules[] = [ 'runOkIfClass', $classes ];
+
+        return $this;
+    }
+
+    /**
+     * @param string[] $classes
+     */
+    public function okIfInstanceOf(array $classes)
+    {
+        foreach ( $classes as $i => $c ) {
+            if ( ! (is_string($c) && ('' !== $c)) ) {
+                throw new LogicException(
+                    [ 'Each of `classes` should be string, non-empty', $i, $classes ]
+                );
+            }
+        }
+
+        $this->rules[] = [ 'runOkIfInstanceOf', $classes ];
+
+        return $this;
+    }
+
+
+    public function failSwitch(array $values)
+    {
+        $this->rules[] = [ 'runFailSwitch', $values ];
+
+        return $this;
+    }
+
+    public function failMatch(array $values)
+    {
+        $this->rules[] = [ 'runFailMatch', $values ];
 
         return $this;
     }
@@ -87,21 +141,79 @@ class RetWrapper
         return $this;
     }
 
+
     /**
      * @param callable $fn
      * @param array    $fnArgs
      *
      * @return static
      */
-    public function failIfCallback($fn, array $fnArgs = [])
+    public function ifCallback($fn, array $fnArgs = [])
     {
-        $this->rules[] = [ 'runFailIfCallback', $fn, $fnArgs ];
+        $this->rules[] = [ 'runIfCallback', $fn, $fnArgs ];
 
         return $this;
     }
 
 
-    protected function runFailIfSwitch(array $values)
+    protected function runOkSwitch(array $values)
+    {
+        $value = $this->value[0];
+
+        if ( in_array($value, $values) ) {
+            return Ret::ok($value);
+        }
+
+        return null;
+    }
+
+    protected function runOkMatch(array $values)
+    {
+        $value = $this->value[0];
+
+        if ( in_array($value, $values, true) ) {
+            return Ret::ok($value);
+        }
+
+        return null;
+    }
+
+    protected function runOkIfClass(array $classes)
+    {
+        $value = $this->value[0];
+
+        if ( ! is_object($value) ) {
+            return null;
+        }
+
+        $valueClass = get_class($value);
+
+        if ( in_array($valueClass, $classes, true) ) {
+            return Ret::ok($value);
+        }
+
+        return null;
+    }
+
+    protected function runOkIfInstanceOf(array $classes)
+    {
+        $value = $this->value[0];
+
+        if ( ! is_object($value) ) {
+            return null;
+        }
+
+        foreach ( $classes as $c ) {
+            if ( is_a($value, $c) ) {
+                return Ret::ok($value);
+            }
+        }
+
+        return null;
+    }
+
+
+    protected function runFailSwitch(array $values)
     {
         $value = $this->value[0];
 
@@ -114,7 +226,7 @@ class RetWrapper
         return null;
     }
 
-    protected function runFailIfMatch(array $values)
+    protected function runFailMatch(array $values)
     {
         $value = $this->value[0];
 
@@ -163,20 +275,21 @@ class RetWrapper
         return null;
     }
 
-    protected function runFailIfCallback($fn, array $fnArgs = [])
+
+    protected function runIfCallback($fn, array $fnArgs = [])
     {
         array_unshift($fnArgs, $this->value);
 
-        $ret = call_user_func_array($fn, $fnArgs);
+        $res = call_user_func_array($fn, $fnArgs);
 
-        if ( null === $ret ) {
+        if ( null === $res ) {
             return null;
 
-        } elseif ( ($ret instanceof Ret) && $ret->isFail() ) {
-            return $ret;
+        } elseif ( $res instanceof Ret ) {
+            return $res;
         }
 
-        throw new RuntimeException([ 'The `fn` must return failed Ret or NULL', $fn, $fnArgs ]);
+        throw new RuntimeException([ 'The `fn` must return Ret or NULL', $fn, $fnArgs ]);
     }
 
 
@@ -231,7 +344,7 @@ class RetWrapper
 
             $ret = call_user_func_array([ $instance, $fn ], $fnArgs);
 
-            if ( ($ret instanceof Ret) && $ret->isFail() ) {
+            if ( $ret instanceof Ret ) {
                 return $ret;
             }
         }

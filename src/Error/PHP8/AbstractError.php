@@ -1,8 +1,8 @@
 <?php
 
-namespace Gzhegow\Ret\Core\Error\PHP8;
+namespace Gzhegow\Ret\Error\PHP8;
 
-use Gzhegow\Ret\Core\Error\ErrorInterface;
+use Gzhegow\Ret\Error\ErrorInterface;
 
 
 abstract class AbstractError implements ErrorInterface

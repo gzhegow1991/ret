@@ -1,11 +1,11 @@
 <?php
 
-namespace Gzhegow\Ret\Core\Error\PHP7;
+namespace Gzhegow\Ret\Error\PHP8;
 
-use Gzhegow\Ret\Core\Err;
-use Gzhegow\Ret\Core\Error\ErrorInterface;
-use Gzhegow\Ret\Core\ErrorMessage\ErrorMessage;
-use Gzhegow\Ret\Core\Error\AggregateErrorInterface;
+use Gzhegow\Ret\Err;
+use Gzhegow\Ret\ErrorMessage\ErrorMessage;
+use Gzhegow\Ret\Error\ErrorInterface;
+use Gzhegow\Ret\Error\AggregateErrorInterface;
 use Gzhegow\Ret\Exception\AggregateExceptionInterface;
 
 
@@ -14,21 +14,21 @@ class AggregateError extends AbstractError implements AggregateErrorInterface
     /**
      * @var ErrorInterface[]
      */
-    public $errors;
+    public array $errors;
 
 
     /**
-     * @param (ErrorInterface|\Throwable)[] $children
+     * @param (\Throwable|ErrorInterface)[] $children
      * @param string|null                   $file
      * @param int|null                      $line
-     * @param mixed                         $message
+     * @param mixed|null                    $message
      *
      * @return static
      */
     public static function make(
-        $children,
-        $file = null, $line = null, $message = null
-    )
+        array $children,
+        ?string $file = null, ?int $line = null, $message = null
+    ) : static
     {
         if ( [] === $children ) {
             throw new \LogicException('The `children` should be array, non-empty');
@@ -71,10 +71,10 @@ class AggregateError extends AbstractError implements AggregateErrorInterface
             $instance->payload = null;
 
         } else {
-            $msg = ErrorMessage::fromMessage($message);
+            $err = ErrorMessage::fromMessage($message);
 
-            $instance->message = $msg->message;
-            $instance->payload = $msg->payload;
+            $instance->message = $err->message;
+            $instance->payload = $err->payload;
         }
 
         return $instance;
@@ -85,10 +85,7 @@ class AggregateError extends AbstractError implements AggregateErrorInterface
     }
 
 
-    /**
-     * @return static
-     */
-    public static function wrap(AggregateExceptionInterface $e)
+    public static function wrap(AggregateExceptionInterface $e) : static
     {
         $instance = new static();
 

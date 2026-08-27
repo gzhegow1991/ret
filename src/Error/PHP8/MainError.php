@@ -1,10 +1,10 @@
 <?php
 
-namespace Gzhegow\Ret\Core\Error\PHP8;
+namespace Gzhegow\Ret\Error\PHP8;
 
-use Gzhegow\Ret\Core\ErrorMessage\ErrorMessage;
+use Gzhegow\Ret\ErrorMessage\ErrorMessage;
 use Gzhegow\Ret\Exception\ExceptionInterface;
-use Gzhegow\Ret\Core\Error\MainErrorInterface;
+use Gzhegow\Ret\Error\MainErrorInterface;
 
 
 class MainError extends AbstractError implements MainErrorInterface

@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Ret\Exception;
 
-use Gzhegow\Ret\Core\Err;
+use Gzhegow\Ret\Err;
 
 
 /**
@@ -16,13 +16,13 @@ trait AggregateExceptionTrait
 
 
     /**
-     * @var \Gzhegow\Ret\Core\Error\ErrorInterface
+     * @var \Gzhegow\Ret\Error\ErrorInterface
      */
     protected $errors = [];
 
 
     /**
-     * @return \Gzhegow\Ret\Core\Error\ErrorInterface[]
+     * @return \Gzhegow\Ret\Error\ErrorInterface[]
      */
     public function getErrors() : array
     {
@@ -30,10 +30,10 @@ trait AggregateExceptionTrait
     }
 
     /**
-     * @return \Generator<array, \Gzhegow\Ret\Core\Error\ErrorInterface[]>
+     * @return \Generator<array, \Gzhegow\Ret\Error\ErrorInterface[]>
      */
     public function getErrorsRecursive() : iterable
     {
-        return Err::getChildrenRecursive($this);
+        return Err::iterChildren($this);
     }
 }

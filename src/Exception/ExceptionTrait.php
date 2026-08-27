@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Ret\Exception;
 
-use Gzhegow\Ret\Core\Err;
+use Gzhegow\Ret\Err;
 use Gzhegow\Ret\Exception\Traits\HasPayloadTrait;
 use Gzhegow\Ret\Exception\Traits\CanTraceShiftTrait;
 

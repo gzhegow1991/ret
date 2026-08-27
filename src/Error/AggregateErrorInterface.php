@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Ret\Core\Error;
+namespace Gzhegow\Ret\Error;
 
 /**
  * @property-read ErrorInterface[] $errors

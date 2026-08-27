@@ -1,9 +1,8 @@
 <?php
 
-namespace Gzhegow\Ret\Core\Error\PHP7;
+namespace Gzhegow\Ret\Error\PHP7;
 
-use Gzhegow\Ret\Exception\ExceptionInterface;
-use Gzhegow\Ret\Core\Error\TriggeredErrorInterface;
+use Gzhegow\Ret\Error\TriggeredErrorInterface;
 use Gzhegow\Ret\Exception\TriggeredExceptionInterface;
 
 

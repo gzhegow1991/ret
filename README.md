@@ -45,7 +45,7 @@ error_reporting(E_ALL);
 // >>> INIT
 
 \Gzhegow\Ret\Err::setFacade($errFacade = new \Gzhegow\Ret\ErrFacade());
-\Gzhegow\Ret\Ret\Ret::setFacade($retFacade = new \Gzhegow\Ret\Ret\RetFacade());
+\Gzhegow\Ret\Ret::setFacade($retFacade = new \Gzhegow\Ret\RetFacade());
 
 
 // >>> TESTS
@@ -126,10 +126,13 @@ $fn = function () use ($theDebug, $testN) {
 
         // > receives code and message
         $ee = [];
+        //
         $ee[] = $e = \Gzhegow\Ret\Err::code(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, __FILE__, __LINE__);
         $ee[] = $e = \Gzhegow\Ret\Err::code([ 0 => \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, 'data' => 1, 'my_data2' ], __FILE__, __LINE__);
+        //
         $ee[] = $e = \Gzhegow\Ret\Err::new(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, __FILE__, __LINE__);
         $ee[] = $e = \Gzhegow\Ret\Err::new([ '' => \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, 0 => null, 'data' => 1, 1 => 'my_data2' ], __FILE__, __LINE__);
+        //
         foreach ( $ee as $e ) {
             $theDebug->dump_value([ $e, $e->message, $e->code, $e->payload ]);
         }
@@ -137,9 +140,12 @@ $fn = function () use ($theDebug, $testN) {
 
         // > receives only message, code will be -1
         $ee = [];
+        //
         $ee[] = $e = \Gzhegow\Ret\Err::message(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, __FILE__, __LINE__);
         $ee[] = $e = \Gzhegow\Ret\Err::message([ 0 => \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, 'data' => 1, 'my_data' ], __FILE__, __LINE__);
+        //
         $ee[] = $e = \Gzhegow\Ret\Err::new([ '' => null, 0 => \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL, 'data' => 1, 'my_data2' ], __FILE__, __LINE__);
+        //
         foreach ( $ee as $e ) {
             $theDebug->dump_value([ $e, $e->message, $e->code, $e->payload ]);
         }
@@ -366,10 +372,10 @@ $fn = function () use ($theDebug, $testN) {
     echo "\n";
 
     // > as first, you should write own function using Ret::ok() and Ret::fail() in returns
-    $fnIsString = function ($value) : \Gzhegow\Ret\Ret\Ret {
+    $fnIsString = function ($value) : \Gzhegow\Ret\Ret {
         return is_string($value)
-            ? \Gzhegow\Ret\Ret\Ret::ok($value)
-            : \Gzhegow\Ret\Ret\Ret::fail([ 'The `value` should be string', $value ], __FILE__, __LINE__);
+            ? \Gzhegow\Ret\Ret::ok($value)
+            : \Gzhegow\Ret\Ret::fail([ 'The `value` should be string', $value ], __FILE__, __LINE__);
     };
 
     $value = 123;
@@ -424,19 +430,19 @@ $fn = function () use ($theDebug, $testN) {
     $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
-    $fnIsString = function ($value) : \Gzhegow\Ret\Ret\Ret {
+    $fnIsString = function ($value) : \Gzhegow\Ret\Ret {
         return is_string($value)
-            ? \Gzhegow\Ret\Ret\Ret::ok($value)
-            : \Gzhegow\Ret\Ret\Ret::fail([ 'The `value` should be string', $value ], __FILE__, __LINE__);
+            ? \Gzhegow\Ret\Ret::ok($value)
+            : \Gzhegow\Ret\Ret::fail([ 'The `value` should be string', $value ], __FILE__, __LINE__);
     };
-    $fnIsArray = function ($value) : \Gzhegow\Ret\Ret\Ret {
+    $fnIsArray = function ($value) : \Gzhegow\Ret\Ret {
         return is_array($value)
-            ? \Gzhegow\Ret\Ret\Ret::ok($value)
-            : \Gzhegow\Ret\Ret\Ret::fail([ 'The `value` should be array', $value ], __FILE__, __LINE__);
+            ? \Gzhegow\Ret\Ret::ok($value)
+            : \Gzhegow\Ret\Ret::fail([ 'The `value` should be array', $value ], __FILE__, __LINE__);
     };
 
 
-    $bag = \Gzhegow\Ret\Ret\Ret::bag();
+    $bag = \Gzhegow\Ret\Ret::bag();
 
     $value = 123;
     $validValue = null
@@ -458,7 +464,7 @@ $fn = function () use ($theDebug, $testN) {
     echo "\n";
 
 
-    $bag = \Gzhegow\Ret\Ret\Ret::bag();
+    $bag = \Gzhegow\Ret\Ret::bag();
 
     $value = 123;
     $isOk = true
@@ -480,7 +486,7 @@ $fn = function () use ($theDebug, $testN) {
     echo "\n";
 
 
-    $bag = \Gzhegow\Ret\Ret\Ret::bag();
+    $bag = \Gzhegow\Ret\Ret::bag();
 
     $value = 123;
     $isOk = false
@@ -543,29 +549,29 @@ $fn = function () use ($theDebug, $testN) {
     $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
-    $fnIsArrayNotEmpty = function ($value) : \Gzhegow\Ret\Ret\Ret {
+    $fnIsArrayNotEmpty = function ($value) : \Gzhegow\Ret\Ret {
         if ( [] === $value ) {
-            return \Gzhegow\Ret\Ret\Ret::fail([ 'The `value` should be array, non-empty', $value ]);
+            return \Gzhegow\Ret\Ret::fail([ 'The `value` should be array, non-empty', $value ]);
         }
         if ( ! is_array($value) ) {
-            return \Gzhegow\Ret\Ret\Ret::fail([ 'The `value` should be array, non-empty', $value ]);
+            return \Gzhegow\Ret\Ret::fail([ 'The `value` should be array, non-empty', $value ]);
         }
 
-        return \Gzhegow\Ret\Ret\Ret::ok($value);
+        return \Gzhegow\Ret\Ret::ok($value);
     };
 
-    $fnIsString = function ($value) : \Gzhegow\Ret\Ret\Ret {
+    $fnIsString = function ($value) : \Gzhegow\Ret\Ret {
         if ( ! is_string($value) ) {
-            return \Gzhegow\Ret\Ret\Ret::fail([ 'The `value` should be string, non-empty', $value ]);
+            return \Gzhegow\Ret\Ret::fail([ 'The `value` should be string, non-empty', $value ]);
         }
 
-        return \Gzhegow\Ret\Ret\Ret::ok($value);
+        return \Gzhegow\Ret\Ret::ok($value);
     };
 
     // > reuse previously created function is pass its ret to parent scope!
-    $fnIsStringNotEmpty = function ($value) use ($fnIsString) : \Gzhegow\Ret\Ret\Ret {
+    $fnIsStringNotEmpty = function ($value) use ($fnIsString) : \Gzhegow\Ret\Ret {
         if ( '' === $value ) {
-            return \Gzhegow\Ret\Ret\Ret::fail([ 'The `value` should be string, non-empty', $value ]);
+            return \Gzhegow\Ret\Ret::fail([ 'The `value` should be string, non-empty', $value ]);
         }
 
         $ret = $fnIsString($value);
@@ -573,16 +579,16 @@ $fn = function () use ($theDebug, $testN) {
         // > the `$valueString` is filled only if condition ->isOk() resulted to TRUE
         if ( ! $ret->isOk([ &$valueString ]) ) {
             // > pass old ret object to parent scope without changes
-            return \Gzhegow\Ret\Ret\Ret::pass($ret);
+            return \Gzhegow\Ret\Ret::pass($ret);
 
             // > will wrap old error to AggregateErrorInterface and then pass it to new ret
             // return \Gzhegow\Ret\Ret\Ret::pass($ret, 'My custom message if needed', __FILE__, __LINE__);
         }
 
-        return \Gzhegow\Ret\Ret\Ret::ok($valueString);
+        return \Gzhegow\Ret\Ret::ok($valueString);
     };
 
-    $bag = \Gzhegow\Ret\Ret\Ret::bag();
+    $bag = \Gzhegow\Ret\Ret::bag();
 
     $value = 123;
     $validValue = null
@@ -629,7 +635,7 @@ $fn = function () use ($theDebug, $testN) {
     $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
-    $fnToString = function ($value) : \Gzhegow\Ret\Ret\Ret {
+    $fnToString = function ($value) : \Gzhegow\Ret\Ret {
         set_error_handler(static function (...$args) {
             // > btw, triggered exception has same argument order as `set_error_handler` callback
             // > ps. `[5]errcontext` is deprecated since PHP 7.2.0, and removed in 8.0.0
@@ -649,13 +655,13 @@ $fn = function () use ($theDebug, $testN) {
             // return \Gzhegow\Ret\Ret\Ret::fail($e);
 
             // > wrap original \Throwable, AND THEN wrap ErrorInterface with AggregateErrorInterface with new file/line, as breadcrumbs
-            return \Gzhegow\Ret\Ret\Ret::fail($e, __FILE__, __LINE__);
+            return \Gzhegow\Ret\Ret::fail($e, __FILE__, __LINE__);
         }
         finally {
             restore_error_handler();
         }
 
-        return \Gzhegow\Ret\Ret\Ret::ok($valueString);
+        return \Gzhegow\Ret\Ret::ok($valueString);
     };
 
     $value = new \stdClass();
@@ -698,9 +704,9 @@ $fn = function () use ($theDebug, $testN) {
     $theDebug->dump_value([ 'ee', '2', \Gzhegow\Ret\Err::isCode($ee, 2) ]);
     echo "\n";
 
-    $ret1 = \Gzhegow\Ret\Ret\Ret::fail(1);
-    $ret2 = \Gzhegow\Ret\Ret\Ret::fail(2);
-    $reg = \Gzhegow\Ret\Ret\Ret::bag();
+    $ret1 = \Gzhegow\Ret\Ret::fail(1);
+    $ret2 = \Gzhegow\Ret\Ret::fail(2);
+    $reg = \Gzhegow\Ret\Ret::bag();
     $reg->push($ret1);
     $reg->push($ret2);
     $rret = $reg->resolvedFail();
@@ -720,9 +726,9 @@ $fn = function () use ($theDebug, $testN) {
         $theDebug->dump_value([ 'ee', 'ERR_FAIL_2', \Gzhegow\Ret\Err::isCode($ee, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2) ]);
         echo "\n";
 
-        $ret1 = \Gzhegow\Ret\Ret\Ret::fail(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1);
-        $ret2 = \Gzhegow\Ret\Ret\Ret::fail(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2);
-        $reg = \Gzhegow\Ret\Ret\Ret::bag();
+        $ret1 = \Gzhegow\Ret\Ret::fail(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1);
+        $ret2 = \Gzhegow\Ret\Ret::fail(\Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2);
+        $reg = \Gzhegow\Ret\Ret::bag();
         $reg->push($ret1);
         $reg->push($ret2);
         $rret = $reg->resolvedFail();
@@ -780,7 +786,7 @@ $fn = function () use ($theDebug, $testN) {
     echo "\n";
 
     // > we may prefer safe call internal PHP functions that may accidentally trigger warning
-    $ret = \Gzhegow\Ret\Ret\Ret::fnCall('fopen', [ '1.txt', 'r' ]);
+    $ret = \Gzhegow\Ret\Ret::fnCall('fopen', [ '1.txt', 'r' ]);
 
     try {
         $ret->orThrow();
@@ -795,10 +801,10 @@ $fn = function () use ($theDebug, $testN) {
     echo "\n";
 
 
-    $fnFopen = \Gzhegow\Ret\Ret\Ret::fn('fopen');
+    $fnFopen = \Gzhegow\Ret\Ret::fn('fopen');
 
 
-    $bag = \Gzhegow\Ret\Ret\Ret::bag();
+    $bag = \Gzhegow\Ret\Ret::bag();
 
     $value = 123;
     $validValue = null
@@ -821,7 +827,7 @@ $fn = function () use ($theDebug, $testN) {
     echo "\n";
 
 
-    $bag = \Gzhegow\Ret\Ret\Ret::bag();
+    $bag = \Gzhegow\Ret\Ret::bag();
 
     $value = 123;
     $validValue = null
@@ -884,7 +890,7 @@ $fn = function () use ($theDebug, $testN) {
     $theDebug->dump_value('TEST ' . $testN);
     echo "\n";
 
-    $wrapper = \Gzhegow\Ret\Ret\Ret::wrapper()
+    $wrapper = \Gzhegow\Ret\Ret::wrapper()
         // // > $value == $val
         ->failSwitch($values = [ '\WP_Error' ])
         // // > $value === $val
@@ -905,7 +911,7 @@ $fn = function () use ($theDebug, $testN) {
 
     // > wrap function, then call
     $fnSomeWordpressFunction = function () { return '\WP_Error'; };
-    $ffnSomeWordpressFunction = \Gzhegow\Ret\Ret\Ret::fn($fnSomeWordpressFunction, $wrapper);
+    $ffnSomeWordpressFunction = \Gzhegow\Ret\Ret::fn($fnSomeWordpressFunction, $wrapper);
     $ret = $ffnSomeWordpressFunction();
     //
     // > or just call it directly

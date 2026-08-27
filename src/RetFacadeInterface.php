@@ -1,8 +1,10 @@
 <?php
 
-namespace Gzhegow\Ret\Ret;
+namespace Gzhegow\Ret;
 
+use Gzhegow\Ret\Ret\RetBagInterface;
 use Gzhegow\Ret\Error\ErrorInterface;
+use Gzhegow\Ret\Ret\RetWrapperInterface;
 
 
 /**
@@ -36,10 +38,10 @@ interface RetFacadeInterface
     public function fail($error, $file = null, $line = null);
 
     /**
-     * @param Ret<T,TT>|TT|\Throwable $source
-     * @param mixed                   $message
-     * @param string|null             $file
-     * @param int|null                $line
+     * @param Ret<T,TT>|ErrorInterface|\Throwable $source
+     * @param mixed                               $message
+     * @param string|null                         $file
+     * @param int|null                            $line
      *
      * @return Ret<T, TT>
      */

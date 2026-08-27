@@ -2,6 +2,9 @@
 
 namespace Gzhegow\Ret\Ret;
 
+use Gzhegow\Ret\Ret;
+
+
 interface RetWrapperInterface
 {
     /**

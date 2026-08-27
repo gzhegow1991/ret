@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Ret\Ret;
 
+use Gzhegow\Ret\Ret;
 use Gzhegow\Ret\Exception\LogicException;
 use Gzhegow\Ret\Exception\RuntimeException;
 

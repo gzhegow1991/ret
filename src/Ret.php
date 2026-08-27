@@ -1,9 +1,11 @@
 <?php
 
-namespace Gzhegow\Ret\Ret;
+namespace Gzhegow\Ret;
 
-use Gzhegow\Ret\Err;
+use Gzhegow\Ret\Ret\RetInterface;
+use Gzhegow\Ret\Ret\RetBagInterface;
 use Gzhegow\Ret\Error\ErrorInterface;
+use Gzhegow\Ret\Ret\RetWrapperInterface;
 use Gzhegow\Ret\Exception\LogicException;
 use Gzhegow\Ret\Exception\RuntimeException;
 use Gzhegow\Ret\Exception\AggregateRuntimeException;
@@ -43,8 +45,8 @@ class Ret implements RetInterface
 
 
     /**
-     * @param \Gzhegow\Ret\Ret\RetFacadeInterface $ret
-     * @param array{ 0?: T, 1?: TT }              $valueError
+     * @param \Gzhegow\Ret\RetFacadeInterface $ret
+     * @param array{ 0?: T, 1?: TT }          $valueError
      *
      * @return static
      * @noinspection PhpUnusedParameterInspection
@@ -87,10 +89,10 @@ class Ret implements RetInterface
     }
 
     /**
-     * @param static<T,TT>|TT|\Throwable $source
-     * @param mixed                      $message
-     * @param string|null                $file
-     * @param int|null                   $line
+     * @param static<T,TT>|ErrorInterface|\Throwable $source
+     * @param mixed                                  $message
+     * @param string|null                            $file
+     * @param int|null                               $line
      *
      * @return static<T, TT>
      */
@@ -195,7 +197,7 @@ class Ret implements RetInterface
 
 
     /**
-     * @return TT
+     * @return ErrorInterface
      */
     public function getError()
     {
@@ -275,7 +277,7 @@ class Ret implements RetInterface
 
 
     /**
-     * @return T|TT
+     * @return T|ErrorInterface
      */
     public function orError($message = null, $file = null, $line = null)
     {

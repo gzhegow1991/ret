@@ -1,9 +1,12 @@
 <?php
 
-namespace Gzhegow\Ret\Ret;
+namespace Gzhegow\Ret;
 
-use Gzhegow\Ret\Err;
+use Gzhegow\Ret\Ret\RetBag;
+use Gzhegow\Ret\Ret\RetWrapper;
+use Gzhegow\Ret\Ret\RetBagInterface;
 use Gzhegow\Ret\Error\ErrorInterface;
+use Gzhegow\Ret\Ret\RetWrapperInterface;
 use Gzhegow\Ret\Exception\LogicException;
 use Gzhegow\Ret\Error\TriggeredErrorInterface;
 
@@ -69,10 +72,10 @@ class RetFacade implements RetFacadeInterface
     }
 
     /**
-     * @param Ret<T,TT>|TT|\Throwable $source
-     * @param mixed                   $message
-     * @param string|null             $file
-     * @param int|null                $line
+     * @param Ret<T,TT>|ErrorInterface|\Throwable $source
+     * @param mixed                               $message
+     * @param string|null                         $file
+     * @param int|null                            $line
      *
      * @return Ret<T, TT>
      */

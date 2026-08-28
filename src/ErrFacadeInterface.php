@@ -10,6 +10,9 @@ use Gzhegow\Ret\Error\TriggeredErrorInterface;
 use Gzhegow\Ret\ErrorMessage\ErrorMessageInterface;
 
 
+/**
+ * @property-read bool $isDebug
+ */
 interface ErrFacadeInterface
 {
     public function isDebug() : bool;
@@ -145,7 +148,7 @@ interface ErrFacadeInterface
     /**
      * @param ErrorInterface|\Throwable|ErrorBagInterface $e
      *
-     * @return array<array, \Gzhegow\Ret\Error\SingleErrorInterface>
+     * @return array<string, \Gzhegow\Ret\Error\SingleErrorInterface>
      */
     public function dotErrorChildren($e) : array;
 

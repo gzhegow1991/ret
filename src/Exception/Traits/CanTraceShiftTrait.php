@@ -36,7 +36,9 @@ trait CanTraceShiftTrait
      */
     public function traceShift(int $traceShift)
     {
-        $this->traceShiftFrames = max(0, $traceShift);
+        if ( $traceShift < 0 ) $traceShift = 0;
+
+        $this->traceShiftFrames = $traceShift;
 
         $this->fileShifted = null;
         $this->lineShifted = null;
@@ -44,6 +46,23 @@ trait CanTraceShiftTrait
 
         return $this;
     }
+
+    /**
+     * @return static
+     */
+    public function traceShiftIncrement(int $traceShift)
+    {
+        if ( $traceShift < 0 ) $traceShift = 0;
+
+        $this->traceShiftFrames += $traceShift;
+
+        $this->fileShifted = null;
+        $this->lineShifted = null;
+        $this->traceShifted = null;
+
+        return $this;
+    }
+
 
     /**
      * @return static

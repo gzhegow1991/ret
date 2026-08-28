@@ -4,6 +4,7 @@ namespace Gzhegow\Ret\Exception;
 
 use Gzhegow\Ret\Err;
 use Gzhegow\Ret\Error\MainErrorInterface;
+use Gzhegow\Ret\ErrorMessage\ErrorMessage;
 
 
 class Exception extends \Exception implements MainExceptionInterface
@@ -22,12 +23,7 @@ class Exception extends \Exception implements MainExceptionInterface
             }
         }
 
-        $ex = Err::unwrap($err);
-        if ( $ex instanceof static ) {
-            return $ex;
-        }
-
-        $instance = new static(Err::getMessage($err), $ex);
+        $instance = new static(ErrorMessage::fromError($err), $ex);
         $instance->traceShift(1);
 
         return $instance;
@@ -36,7 +32,7 @@ class Exception extends \Exception implements MainExceptionInterface
 
     public function __construct($error, ?\Throwable $previous = null)
     {
-        $err = Err::new($error);
+        $err = ErrorMessage::fromMixed($error);
 
         if ( null === $previous ) {
             $this->message = $err->message;

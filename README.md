@@ -40,16 +40,7 @@ PHP пошел по другому пути. Пытаясь скопироват
 
 ```
 > composer require --dev gzhegow/lib
-> touch test.php
-```
-```
-// test.php
-<?php
-require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/vendor/gzhegow/ret/tests/test.php';
-```
-```
-> php test.php
+> php /vendor/gzhegow/ret/test.php
 ```
 
 ## Examples & Tests / Примеры и тесты
@@ -1122,6 +1113,10 @@ $test->run();
 
 error_reporting(E_ALL);
 
+if ( ! defined('__DIR_ROOT__') ) {
+    define('__DIR_ROOT__', realpath(__DIR__ . '/..'));
+}
+
 
 // >>> INIT
 
@@ -1272,6 +1267,121 @@ $test->expectStdoutIf(PHP_VERSION_ID < 80100, '
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "32767", 32767, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "message", -1, NULL ]
 [ "{ object # Gzhegow\Ret\Error\PHP7\MainError }", "message", 32767, "{ array(2) }" ]
+');
+$test->run();
+
+
+// > TEST
+// > а ещё ошибки можно дебажить, долго, тяжело, но можно ведь?
+$testN++;
+$fn = function () use ($theDebug, $testN) {
+    $theDebug->dump_value('TEST ' . $testN);
+    echo "\n";
+
+    \Gzhegow\Ret\Err::debug(true);
+
+    $eArray = [];
+    $eArray[] = \Gzhegow\Ret\Err::message('message', __FILE__, __LINE__);
+    $eArray[] = \Gzhegow\Ret\Err::code(32767, __FILE__, __LINE__);
+    $eArray[] = \Gzhegow\Ret\Err::new([ '' => 32767, 0 => 'message', 'data' => 1, 'my_data2' ], __FILE__, __LINE__);
+    $eArray[] = \Gzhegow\Ret\Err::triggered(E_USER_WARNING, 'message', __FILE__, __LINE__);
+    foreach ( $eArray as $e ) {
+        foreach ( $e->throwable->getTrace() as $i => $f ) {
+            $class = $f['class'] ?? '';
+            $type = $f['type'] ?? '';
+            $function = $f['function'] ?? '{unknown}';
+            $file = $f['file'] ?? '{unknown}';
+            $line = $f['line'] ?? 0;
+
+            if ( '{' !== $file[0] ) {
+                $file = realpath($file);
+                $file = str_replace(__DIR_ROOT__, '', $file);
+                $file = ltrim($file, DIRECTORY_SEPARATOR);
+            }
+
+            echo "#{$i} {$file}({$line}): {$class}{$type}{$function}()" . "\n";
+        }
+        echo "\n";
+    }
+
+    $ee = \Gzhegow\Ret\Err::aggregate($eArray, __FILE__, __LINE__);
+    foreach ( $ee->throwable->getTrace() as $i => $f ) {
+        $class = $f['class'] ?? '';
+        $type = $f['type'] ?? '';
+        $function = $f['function'] ?? '{unknown}';
+        $file = $f['file'] ?? '{unknown}';
+        $line = $f['line'] ?? 0;
+
+        if ( '{' !== $file[0] ) {
+            $file = realpath($file);
+            $file = str_replace(__DIR_ROOT__, '', $file);
+            $file = ltrim($file, DIRECTORY_SEPARATOR);
+        }
+
+        echo "#{$i} {$file}({$line}): {$class}{$type}{$function}()" . "\n";
+    }
+    echo "\n";
+
+    \Gzhegow\Ret\Err::debug(false);
+
+    echo "\n";
+};
+$test = $theTest->newCase($fn);
+$test->expectStdoutIf(PHP_VERSION_ID >= 80100, '
+"TEST ' . $testN . '"
+
+#0 {unknown}(0): {closure}()
+#1 vendor\gzhegow\lib\src\Modules\Test\TestCase\TestCase.php(350): call_user_func_array()
+#2 tests\test.php(275): Gzhegow\Lib\Modules\Test\TestCase\TestCase->run()
+#3 test.php(5): require_once()
+
+#0 {unknown}(0): {closure}()
+#1 vendor\gzhegow\lib\src\Modules\Test\TestCase\TestCase.php(350): call_user_func_array()
+#2 tests\test.php(275): Gzhegow\Lib\Modules\Test\TestCase\TestCase->run()
+#3 test.php(5): require_once()
+
+#0 {unknown}(0): {closure}()
+#1 vendor\gzhegow\lib\src\Modules\Test\TestCase\TestCase.php(350): call_user_func_array()
+#2 tests\test.php(275): Gzhegow\Lib\Modules\Test\TestCase\TestCase->run()
+#3 test.php(5): require_once()
+
+#0 {unknown}(0): {closure}()
+#1 vendor\gzhegow\lib\src\Modules\Test\TestCase\TestCase.php(350): call_user_func_array()
+#2 tests\test.php(275): Gzhegow\Lib\Modules\Test\TestCase\TestCase->run()
+#3 test.php(5): require_once()
+
+#0 {unknown}(0): {closure}()
+#1 vendor\gzhegow\lib\src\Modules\Test\TestCase\TestCase.php(350): call_user_func_array()
+#2 tests\test.php(275): Gzhegow\Lib\Modules\Test\TestCase\TestCase->run()
+#3 test.php(5): require_once()
+');
+$test->expectStdoutIf(PHP_VERSION_ID < 80100, '
+"TEST ' . $testN . '"
+
+#0 {unknown}(0): {closure}()
+#1 vendor\gzhegow\lib\src\Modules\Test\TestCase\TestCase.php(350): call_user_func_array()
+#2 tests\test.php(275): Gzhegow\Lib\Modules\Test\TestCase\TestCase->run()
+#3 test.php(5): require_once()
+
+#0 {unknown}(0): {closure}()
+#1 vendor\gzhegow\lib\src\Modules\Test\TestCase\TestCase.php(350): call_user_func_array()
+#2 tests\test.php(275): Gzhegow\Lib\Modules\Test\TestCase\TestCase->run()
+#3 test.php(5): require_once()
+
+#0 {unknown}(0): {closure}()
+#1 vendor\gzhegow\lib\src\Modules\Test\TestCase\TestCase.php(350): call_user_func_array()
+#2 tests\test.php(275): Gzhegow\Lib\Modules\Test\TestCase\TestCase->run()
+#3 test.php(5): require_once()
+
+#0 {unknown}(0): {closure}()
+#1 vendor\gzhegow\lib\src\Modules\Test\TestCase\TestCase.php(350): call_user_func_array()
+#2 tests\test.php(275): Gzhegow\Lib\Modules\Test\TestCase\TestCase->run()
+#3 test.php(5): require_once()
+
+#0 {unknown}(0): {closure}()
+#1 vendor\gzhegow\lib\src\Modules\Test\TestCase\TestCase.php(350): call_user_func_array()
+#2 tests\test.php(275): Gzhegow\Lib\Modules\Test\TestCase\TestCase->run()
+#3 test.php(5): require_once()
 ');
 $test->run();
 
@@ -2083,7 +2193,7 @@ $fn = function () use ($theDebug, $testN) {
             '^7.3' => [
                 [ 0.008, 0.006 ],
                 [ 0.015, 0.009 ],
-                [ 0.025, 0.014 ],
+                [ 0.026, 0.014 ],
                 [ 0.078, 0.037 ],
             ],
         ];

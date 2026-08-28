@@ -257,11 +257,9 @@ class ErrorMessage implements ErrorMessageInterface
     public static function fromError(ErrorInterface $from)
     {
         $instance = new static();
+        $instance->code = $from->code;
         $instance->message = $from->message;
         $instance->payload = $from->payload;
-
-        $eCode = Err::getCode($from);
-        $instance->code = $eCode;
 
         return $instance;
     }
@@ -273,9 +271,7 @@ class ErrorMessage implements ErrorMessageInterface
     {
         $instance = new ErrorMessage();
         $instance->message = $from->getMessage();
-
-        $eCode = Err::getCode($from);
-        $instance->code = $eCode;
+        $instance->code = $from->getCode();
 
         if ( $from instanceof ExceptionInterface ) {
             $instance->payload = $from->getPayload();

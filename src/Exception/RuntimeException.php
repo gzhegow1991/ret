@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Ret\Exception;
 
-use Gzhegow\Ret\Err;
 use Gzhegow\Ret\Error\MainErrorInterface;
+use Gzhegow\Ret\ErrorMessage\ErrorMessage;
 
 
 class RuntimeException extends \RuntimeException implements MainExceptionInterface
@@ -22,12 +22,7 @@ class RuntimeException extends \RuntimeException implements MainExceptionInterfa
             }
         }
 
-        $ex = Err::unwrap($err);
-        if ( $ex instanceof static ) {
-            return $ex;
-        }
-
-        $instance = new static(Err::getMessage($err), $ex);
+        $instance = new static(ErrorMessage::fromError($err), $ex);
         $instance->traceShift(1);
 
         return $instance;
@@ -36,17 +31,17 @@ class RuntimeException extends \RuntimeException implements MainExceptionInterfa
 
     public function __construct($error, ?\Throwable $previous = null)
     {
-        $err = Err::new($error);
+        $msg = ErrorMessage::fromMixed($error);
 
         if ( null === $previous ) {
-            $this->message = $err->message;
-            $this->code = $err->code;
+            $this->message = $msg->message;
+            $this->code = $msg->code;
 
         } else {
-            parent::__construct($err->message, $err->code, $previous);
+            parent::__construct($msg->message, $msg->code, $previous);
         }
 
-        $this->payload = $err->payload;
+        $this->payload = $msg->payload;
     }
 
 

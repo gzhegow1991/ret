@@ -21,6 +21,8 @@ class TaggedError implements TaggedErrorInterface
      * @param array<string, bool>|null $tags
      *
      * @return static
+     *
+     * @internal use Err::tagged() instead
      */
     public static function make(ErrorInterface $error, ?array $tags = null)
     {

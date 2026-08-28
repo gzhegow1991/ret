@@ -2,7 +2,9 @@
 
 namespace Gzhegow\Ret\Error\PHP7;
 
+use Gzhegow\Ret\Err;
 use Gzhegow\Ret\ErrorMessage\ErrorMessage;
+use Gzhegow\Ret\Exception\RuntimeException;
 use Gzhegow\Ret\Exception\ExceptionInterface;
 use Gzhegow\Ret\Error\MainErrorInterface;
 
@@ -15,6 +17,8 @@ class MainError extends AbstractError implements MainErrorInterface
      * @param int|null    $line
      *
      * @return static
+     *
+     * @internal use Err::new() instead
      */
     public static function make($from, $file = null, $line = null)
     {
@@ -29,6 +33,14 @@ class MainError extends AbstractError implements MainErrorInterface
         $instance->message = $msg->message;
         $instance->payload = $msg->payload;
 
+        if ( Err::$isDebug ) {
+            $t = RuntimeException::fromErr($instance);
+            $t->traceShiftIncrement(3);
+            $t->applyTraceShift();
+
+            $instance->throwable = $t;
+        }
+
         return $instance;
     }
 
@@ -38,6 +50,8 @@ class MainError extends AbstractError implements MainErrorInterface
      * @param int|null    $line
      *
      * @return static
+     *
+     * @internal use Err::code() instead
      */
     public static function code($from, $file = null, $line = null)
     {
@@ -52,6 +66,14 @@ class MainError extends AbstractError implements MainErrorInterface
         $instance->message = $msg->message;
         $instance->payload = $msg->payload;
 
+        if ( Err::$isDebug ) {
+            $t = RuntimeException::fromErr($instance);
+            $t->traceShiftIncrement(3);
+            $t->applyTraceShift();
+
+            $instance->throwable = $t;
+        }
+
         return $instance;
     }
 
@@ -61,6 +83,8 @@ class MainError extends AbstractError implements MainErrorInterface
      * @param int|null    $line
      *
      * @return static
+     *
+     * @internal use Err::new() instead
      */
     public static function message($from, $file = null, $line = null)
     {
@@ -74,6 +98,14 @@ class MainError extends AbstractError implements MainErrorInterface
         $instance->code = $msg->code;
         $instance->message = $msg->message;
         $instance->payload = $msg->payload;
+
+        if ( Err::$isDebug ) {
+            $t = RuntimeException::fromErr($instance);
+            $t->traceShiftIncrement(3);
+            $t->applyTraceShift();
+
+            $instance->throwable = $t;
+        }
 
         return $instance;
     }

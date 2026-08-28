@@ -24,7 +24,7 @@ class AggregateRuntimeException extends \RuntimeException implements AggregateEx
             }
         }
 
-        $instance = new static($err->errors, Err::getMessage($err));
+        $instance = new static($err->errors, ErrorMessage::fromError($err));
         $instance->traceShift(1);
 
         return $instance;

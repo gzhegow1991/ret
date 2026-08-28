@@ -10,8 +10,16 @@ use Gzhegow\Ret\Error\TriggeredErrorInterface;
 use Gzhegow\Ret\ErrorMessage\ErrorMessageInterface;
 
 
+/**
+ * @property-read bool $isDebug
+ */
 abstract class Err
 {
+    /**
+     * @var bool
+     */
+    public static $isDebug = false;
+
     public static function isDebug() : bool
     {
         return static::$facade->isDebug();
@@ -236,7 +244,7 @@ abstract class Err
     /**
      * @param ErrorInterface|\Throwable|ErrorBagInterface $e
      *
-     * @return array<array, \Gzhegow\Ret\Error\SingleErrorInterface>
+     * @return array<string, \Gzhegow\Ret\Error\SingleErrorInterface>
      */
     public static function dotErrorChildren($e) : array
     {
@@ -263,6 +271,8 @@ abstract class Err
         $last = static::$facade;
 
         static::$facade = $facade;
+
+        static::$isDebug =& $facade->isDebug;
 
         return $last;
     }

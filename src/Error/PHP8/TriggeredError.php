@@ -2,6 +2,8 @@
 
 namespace Gzhegow\Ret\Error\PHP8;
 
+use Gzhegow\Ret\Err;
+use Gzhegow\Ret\Exception\TriggeredException;
 use Gzhegow\Ret\Error\TriggeredErrorInterface;
 use Gzhegow\Ret\Exception\TriggeredExceptionInterface;
 
@@ -20,6 +22,8 @@ class TriggeredError extends AbstractError implements TriggeredErrorInterface
      * @param int|null    $code
      *
      * @return static
+     *
+     * @internal use Err::triggered() instead
      */
     public static function make(
         int $severity, string $message,
@@ -27,6 +31,8 @@ class TriggeredError extends AbstractError implements TriggeredErrorInterface
         ?array $payload = null, ?int $code = null
     ) : static
     {
+        $eCode = $code ?: -1;
+
         $instance = new static();
 
         $instance->severity = $severity;
@@ -34,10 +40,19 @@ class TriggeredError extends AbstractError implements TriggeredErrorInterface
         $instance->file = $file ?? 'unknown';
         $instance->line = $line ?? 0;
         //
-        $instance->code = $code ?? -1;
         $instance->message = $message;
         //
+        $instance->code = $eCode;
+        //
         $instance->payload = $payload;
+
+        if ( Err::$isDebug ) {
+            $t = TriggeredException::fromErr($instance);
+            $t->traceShiftIncrement(3);
+            $t->applyTraceShift();
+
+            $instance->throwable = $t;
+        }
 
         return $instance;
     }

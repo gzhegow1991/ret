@@ -30,7 +30,7 @@ class ErrFacade implements ErrFacadeInterface
     /**
      * @var bool
      */
-    protected $isDebug = false;
+    public $isDebug = false;
 
     public function isDebug() : bool
     {
@@ -193,7 +193,10 @@ class ErrFacade implements ErrFacadeInterface
         }
 
         if ( $err instanceof AggregateErrorInterface ) {
-            $instance = new AggregateException($err->errors, Err::getMessage($err));
+            $instance = new AggregateException(
+                $err->errors,
+                ErrorMessage::fromError($err)
+            );
 
         } else {
             // } elseif ($err instanceof SingleErrorInterface) {
@@ -206,7 +209,9 @@ class ErrFacade implements ErrFacadeInterface
                 );
 
             } else {
-                $instance = new Exception(Err::getMessage($err));
+                $instance = new Exception(
+                    ErrorMessage::fromError($err)
+                );
             }
         }
 
@@ -260,8 +265,8 @@ class ErrFacade implements ErrFacadeInterface
 
         $rightCode = $code;
 
-        $leftCode = $leftCode ?? -1;
-        $rightCode = $rightCode ?? -1;
+        $leftCode = $leftCode ?: -1;
+        $rightCode = $rightCode ?: -1;
 
         if ( $leftCode === -1 ) return false;
         if ( $rightCode === -1 ) return false;

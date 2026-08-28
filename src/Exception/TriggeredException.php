@@ -2,7 +2,6 @@
 
 namespace Gzhegow\Ret\Exception;
 
-use Gzhegow\Ret\Err;
 use Gzhegow\Ret\Error\TriggeredErrorInterface;
 
 
@@ -22,15 +21,15 @@ class TriggeredException extends \ErrorException implements TriggeredExceptionIn
             }
         }
 
-        $ex = Err::unwrap($err);
-        if ( $ex instanceof static ) {
-            return $ex;
-        }
+        $eCode = $err->code ?: -1;
 
         $instance = new static(
             $err->severity, $err->message,
             $err->file, $err->line,
-            $err->payload, $err->code,
+            $err->payload,
+            //
+            $eCode,
+            //
             $ex
         );
         $instance->traceShift(1);
@@ -46,6 +45,8 @@ class TriggeredException extends \ErrorException implements TriggeredExceptionIn
         ?\Throwable $previous = null
     )
     {
+        $eCode = $code ?: -1;
+
         if ( null === $previous ) {
             $this->severity = $severity;
             //
@@ -53,11 +54,12 @@ class TriggeredException extends \ErrorException implements TriggeredExceptionIn
             $this->line = $line ?? 0;
             //
             $this->message = $message;
-            $this->code = $code ?? -1;
+            //
+            $this->code = $eCode;
 
         } else {
             parent::__construct(
-                $message, $code,
+                $message, $eCode,
                 $severity,
                 $file, $line,
                 $previous

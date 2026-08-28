@@ -6,6 +6,7 @@ use Gzhegow\Ret\Err;
 use Gzhegow\Ret\ErrorMessage\ErrorMessage;
 use Gzhegow\Ret\Error\ErrorInterface;
 use Gzhegow\Ret\Error\AggregateErrorInterface;
+use Gzhegow\Ret\Exception\AggregateRuntimeException;
 use Gzhegow\Ret\Exception\AggregateExceptionInterface;
 
 
@@ -24,6 +25,8 @@ class AggregateError extends AbstractError implements AggregateErrorInterface
      * @param mixed|null                    $message
      *
      * @return static
+     *
+     * @internal use Err::aggregate() instead
      */
     public static function make(
         array $children,
@@ -75,6 +78,14 @@ class AggregateError extends AbstractError implements AggregateErrorInterface
 
             $instance->message = $err->message;
             $instance->payload = $err->payload;
+        }
+
+        if ( Err::$isDebug ) {
+            $t = AggregateRuntimeException::fromErr($instance);
+            $t->traceShiftIncrement(3);
+            $t->applyTraceShift();
+
+            $instance->throwable = $t;
         }
 
         return $instance;

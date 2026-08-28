@@ -13,6 +13,12 @@ interface CanTraceShiftInterface
     /**
      * @return static
      */
+    public function traceShiftIncrement(int $increment);
+
+
+    /**
+     * @return static
+     */
     public function applyTraceShift();
 
 

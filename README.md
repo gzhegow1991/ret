@@ -4,17 +4,19 @@
 
 ### En
 
-Much has been written about errors—honestly, way too much. Most attempts to discuss this topic end up with claims that "it's all very simple." But as we can see, various languages where "it's simple" still allow for catastrophic blunders, leaving developers frustrated and forcing them to sweep these issues under the rug using AI.
+A lot has been written about errors—far too much, even. Attempts to discuss this topic usually end with claims that it is all very simple. But as we can see, various languages where "it's easy" allow for major blunders, leaving developers frustrated and later sweeping the mess under the rug using neural networks.
 
-The best concept I’ve managed to discuss with other developers is the ReturnCode approach. It was invented back in the day by our "grandfathers" of programming, who simply maintained arrays mapping a CODE to a MESSAGE. For the CPU, it was absolute heaven—it just compared two integers and immediately knew what to do.
+The best concept I have managed to discuss with other developers is the ReturnCode concept, invented back in the day by our tech ancestors who simply maintained arrays mapping a CODE to a MESSAGE. For the processor, it was pure paradise: it just compared two integers and knew exactly what to do.
 
-PHP took a different path. Attempting to copy Java, it introduced exceptions to replace Warnings. Of course, nobody bothered to gather feedback from the community regulars; they just decided it via a standard vote. The main downside of an exception is that upon creation, it copies the full function stack trace into RAM. While amazingly convenient, it is incredibly expensive. No matter how hard developers tried to optimize this process, using simple error objects remains faster. Then again, you can't catch regular errors using try/catch.
+PHP took a different path. In an attempt to mimic Java, exceptions were introduced to replace warnings. Naturally, nobody gathered the opinions of the core community; it was decided by a standard vote. The main downside of an exception is that upon creation, it copies the full function stack trace into RAM. This is amazingly convenient, but very expensive. No matter how hard the developers tried to optimize this process, using simple error objects is still faster. Then again, standard errors cannot be caught via try/catch.
 
-Allow me to present the Result<T,E> concept implemented in PHP. Along with it come customized exceptions tailored for logging and outputting, an ErrorBag for convenient accumulation and tag management, and a Wrapper for legacy code.
+I present to you the Result<T, E> concept in PHP. What is it for? You write a single function that checks a type and specifies the error text. Then, instead of writing if/throw in your code, you simply call a method flagged as orThrow() or orFallback(). From now on, your method can both throw exceptions and act as a type checker at the same time. You can use false/null chains to manage whether you collect all errors or collect all results. Convenient? Yes.
 
-What is it used for? You write a single function that validates a type and specifies the error text. Then, in your code, instead of writing if/throw, you simply call a method flagged with orThrow() or orFallback(). From now on, your method can both throw exceptions and act as a type checker at the same time. Using false/null chains, you can control the flow—either collect all errors or gather all results. Convenient? Absolutely.
+It comes with errors, fine-tuned exceptions for logging and outputting them, an ErrorBag for convenient accumulation and tag management, and a Wrapper for legacy code.
 
-Take a look at the tests; it will give you something to think about.
+In addition, you can trigger Err::debug(true), and all your errors will create an underlying exception upon creation (without throwing it). This grants you a full stack trace right down to where your issue originated.
+
+Check out the tests; they will give you something to remember.
 
 ### Ru
 

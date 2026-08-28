@@ -37,27 +37,38 @@ interface RetInterface
      */
     public function getValue();
 
+
     /**
      * @return ErrorInterface
      */
     public function getError();
 
-
-    /**
-     * @return \Generator<array, ErrorInterface>
-     */
-    public function iterErrors() : iterable;
-
-    /**
-     * @return array<string, ErrorInterface>
-     */
-    public function dotErrors() : array;
-
-
     /**
      * @return int|string|\BackedEnum
      */
     public function getCode();
+
+
+    /**
+     * @return \Generator<array, ErrorInterface>
+     */
+    public function iterError() : iterable;
+
+    /**
+     * @return array<string, ErrorInterface>
+     */
+    public function dotError() : array;
+
+
+    /**
+     * @return \Generator<array, \Gzhegow\Ret\Error\SingleErrorInterface>
+     */
+    public function iterErrorChildren() : iterable;
+
+    /**
+     * @return array<string, \Gzhegow\Ret\Error\SingleErrorInterface>
+     */
+    public function dotErrorChildren() : array;
 
 
     /**

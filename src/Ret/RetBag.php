@@ -840,7 +840,7 @@ class RetBag implements RetBagInterface
         foreach ( $rets as $i => $ret ) {
             $path = [ $i ];
 
-            foreach ( $ret->iterErrors() as $childPath => $child ) {
+            foreach ( $ret->iterError() as $childPath => $child ) {
                 $fullpath = array_merge($path, $childPath);
 
                 yield $fullpath => $child;

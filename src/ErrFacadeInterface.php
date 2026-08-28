@@ -117,9 +117,16 @@ interface ErrFacadeInterface
     /**
      * @param ErrorInterface|\Throwable|ErrorBagInterface $e
      *
-     * @return \Generator<array, ErrorInterface[]>
+     * @return \Generator<array, ErrorInterface>
      */
     public function iterErrors($e) : iterable;
+
+    /**
+     * @param ErrorInterface|\Throwable|ErrorBagInterface $e
+     *
+     * @return array<string, ErrorInterface>
+     */
+    public function dotErrors($e) : array;
 
 
     /**
@@ -127,14 +134,21 @@ interface ErrFacadeInterface
      *
      * @return \Gzhegow\Ret\Error\SingleErrorInterface[]
      */
-    public function getChildren($e) : array;
+    public function getErrorChildren($e) : array;
 
     /**
      * @param ErrorInterface|\Throwable|ErrorBagInterface $e
      *
-     * @return \Generator<array, \Gzhegow\Ret\Error\SingleErrorInterface[]>
+     * @return \Generator<array, \Gzhegow\Ret\Error\SingleErrorInterface>
      */
-    public function iterChildren($e) : iterable;
+    public function iterErrorChildren($e) : iterable;
+
+    /**
+     * @param ErrorInterface|\Throwable|ErrorBagInterface $e
+     *
+     * @return array<array, \Gzhegow\Ret\Error\SingleErrorInterface>
+     */
+    public function dotErrorChildren($e) : array;
 
 
     /**

@@ -208,34 +208,6 @@ class Ret implements RetInterface
         return $this->error[0];
     }
 
-
-    /**
-     * @return \Generator<array, ErrorInterface>
-     */
-    public function iterErrors() : iterable
-    {
-        if ( [] === $this->error ) {
-            throw new RuntimeException('The `ret` contains no error');
-        }
-
-        yield from Err::iterErrors($this->error[0]);
-    }
-
-    /**
-     * @return array<string, ErrorInterface>
-     */
-    public function dotErrors() : array
-    {
-        $errors = [];
-
-        foreach ( $this->iterErrors() as $path => $error ) {
-            $errors[implode('.', $path)] = $error;
-        }
-
-        return $errors;
-    }
-
-
     /**
      * @return int|string|\BackedEnum
      */
@@ -250,6 +222,60 @@ class Ret implements RetInterface
         }
 
         return 0;
+    }
+
+
+    /**
+     * @return \Generator<array, ErrorInterface>
+     */
+    public function iterError() : iterable
+    {
+        if ( [] === $this->error ) {
+            throw new RuntimeException('The `ret` contains no error');
+        }
+
+        yield from Err::iterErrors($this->error[0]);
+    }
+
+    /**
+     * @return array<string, ErrorInterface>
+     */
+    public function dotError() : array
+    {
+        $errors = [];
+
+        foreach ( $this->iterError() as $path => $error ) {
+            $errors[implode('.', $path)] = $error;
+        }
+
+        return $errors;
+    }
+
+
+    /**
+     * @return \Generator<array, \Gzhegow\Ret\Error\SingleErrorInterface>
+     */
+    public function iterErrorChildren() : iterable
+    {
+        if ( [] === $this->error ) {
+            throw new RuntimeException('The `ret` contains no error');
+        }
+
+        yield from Err::iterErrorChildren($this->error[0]);
+    }
+
+    /**
+     * @return array<string, \Gzhegow\Ret\Error\SingleErrorInterface>
+     */
+    public function dotErrorChildren() : array
+    {
+        $errors = [];
+
+        foreach ( $this->iterErrorChildren() as $path => $error ) {
+            $errors[implode('.', $path)] = $error;
+        }
+
+        return $errors;
     }
 
 

@@ -196,32 +196,52 @@ abstract class Err
     /**
      * @param ErrorInterface|\Throwable|ErrorBagInterface $e
      *
-     * @return \Generator<array, ErrorInterface[]>
+     * @return \Generator<array, ErrorInterface>
      */
     public static function iterErrors($e) : iterable
     {
         return static::$facade->iterErrors($e);
     }
 
+    /**
+     * @param ErrorInterface|\Throwable|ErrorBagInterface $e
+     *
+     * @return array<string, ErrorInterface>
+     */
+    public static function dotErrors($e) : array
+    {
+        return static::$facade->dotErrors($e);
+    }
+
 
     /**
      * @param ErrorInterface|\Throwable|ErrorBagInterface $e
      *
-     * @return ErrorInterface[]
+     * @return \Gzhegow\Ret\Error\SingleErrorInterface[]
      */
-    public static function getChildren($e) : array
+    public static function getErrorChildren($e) : array
     {
-        return static::$facade->getChildren($e);
+        return static::$facade->getErrorChildren($e);
     }
 
     /**
      * @param ErrorInterface|\Throwable|ErrorBagInterface $e
      *
-     * @return \Generator<array, ErrorInterface[]>
+     * @return \Generator<array, \Gzhegow\Ret\Error\SingleErrorInterface>
      */
-    public static function iterChildren($e) : iterable
+    public static function iterErrorChildren($e) : iterable
     {
-        return static::$facade->iterChildren($e);
+        return static::$facade->iterErrorChildren($e);
+    }
+
+    /**
+     * @param ErrorInterface|\Throwable|ErrorBagInterface $e
+     *
+     * @return array<array, \Gzhegow\Ret\Error\SingleErrorInterface>
+     */
+    public static function dotErrorChildren($e) : array
+    {
+        return static::$facade->dotErrorChildren($e);
     }
 
 

@@ -457,7 +457,7 @@ $fn = function () use ($theDebug, $testN) {
     catch ( \Gzhegow\Ret\Exception\ExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2); // > [ object, 'The password is invalid', [ 1 => 123 ] ]
 
-        foreach ( $ret->iterErrors() as $path => $e ) {
+        foreach ( $ret->iterError() as $path => $e ) {
             $theDebug->dump_array([ implode('.', $path), $e, $e->message, $e->payload ], 2);
         }
     }
@@ -479,7 +479,7 @@ $fn = function () use ($theDebug, $testN) {
     catch ( \Gzhegow\Ret\Exception\ExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2);
 
-        foreach ( $ret->iterErrors() as $path => $e ) {
+        foreach ( $ret->iterError() as $path => $e ) {
             $theDebug->dump_array([ implode('.', $path), $e, $e->message, $e->payload ], 2);
         }
     }
@@ -501,7 +501,7 @@ $fn = function () use ($theDebug, $testN) {
     catch ( \Gzhegow\Ret\Exception\ExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2);
 
-        foreach ( $ret->iterErrors() as $path => $e ) {
+        foreach ( $ret->iterError() as $path => $e ) {
             $theDebug->dump_array([ implode('.', $path), $e, $e->message, $e->payload ], 2);
         }
     }
@@ -603,7 +603,7 @@ $fn = function () use ($theDebug, $testN) {
     catch ( \Gzhegow\Ret\Exception\AggregateExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage(), $e->getPayload() ], 2);
 
-        foreach ( $ret->iterErrors() as $path => $e ) {
+        foreach ( $ret->iterError() as $path => $e ) {
             $theDebug->dump_array([ implode('.', $path), $e, $e->message, $e->payload ], 2);
         }
     }
@@ -794,7 +794,7 @@ $fn = function () use ($theDebug, $testN) {
     catch ( \Gzhegow\Ret\Exception\AggregateExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage() ], 2);
 
-        foreach ( $ret->iterErrors() as $path => $ee ) {
+        foreach ( $ret->iterError() as $path => $ee ) {
             $theDebug->dump_array([ implode('.', $path), $ee, $ee->message ], 2);
         }
     }
@@ -820,7 +820,7 @@ $fn = function () use ($theDebug, $testN) {
     catch ( \Gzhegow\Ret\Exception\AggregateExceptionInterface $e ) {
         $theDebug->dump_array([ $e, $e->getMessage() ], 2);
 
-        foreach ( $ret->iterErrors() as $path => $ee ) {
+        foreach ( $ret->iterError() as $path => $ee ) {
             $theDebug->dump_array([ implode('.', $path), $ee, $ee->message ], 2);
         }
     }

@@ -34,6 +34,6 @@ trait AggregateExceptionTrait
      */
     public function getErrorsRecursive() : iterable
     {
-        return Err::iterChildren($this);
+        return Err::iterErrorChildren($this);
     }
 }

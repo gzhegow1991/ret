@@ -311,7 +311,7 @@ class ErrFacade implements ErrFacadeInterface
     /**
      * @param ErrorInterface|\Throwable|ErrorBagInterface $e
      *
-     * @return \Generator<array, ErrorInterface[]>
+     * @return \Generator<array, ErrorInterface>
      */
     public function iterErrors($e) : iterable
     {
@@ -366,13 +366,29 @@ class ErrFacade implements ErrFacadeInterface
         }
     }
 
+    /**
+     * @param ErrorInterface|\Throwable|ErrorBagInterface $e
+     *
+     * @return array<string, ErrorInterface>
+     */
+    public function dotErrors($e) : array
+    {
+        $errors = [];
+
+        foreach ( $this->iterErrors($e) as $path => $error ) {
+            $errors[implode('.', $path)] = $error;
+        }
+
+        return $errors;
+    }
+
 
     /**
      * @param ErrorInterface|\Throwable|ErrorBagInterface $e
      *
      * @return \Gzhegow\Ret\Error\SingleErrorInterface[]
      */
-    public function getChildren($e) : array
+    public function getErrorChildren($e) : array
     {
         if ( $e instanceof AggregateErrorInterface ) {
             return $e->errors;
@@ -397,11 +413,11 @@ class ErrFacade implements ErrFacadeInterface
     /**
      * @param ErrorInterface|\Throwable|ErrorBagInterface $e
      *
-     * @return \Generator<array, \Gzhegow\Ret\Error\SingleErrorInterface[]>
+     * @return \Generator<array, \Gzhegow\Ret\Error\SingleErrorInterface>
      */
-    public function iterChildren($e) : iterable
+    public function iterErrorChildren($e) : iterable
     {
-        $children = $this->getChildren($e);
+        $children = $this->getErrorChildren($e);
         if ( [] === $children ) {
             return;
         }
@@ -454,6 +470,22 @@ class ErrFacade implements ErrFacadeInterface
                 }
             }
         }
+    }
+
+    /**
+     * @param ErrorInterface|\Throwable|ErrorBagInterface $e
+     *
+     * @return array<string, \Gzhegow\Ret\Error\SingleErrorInterface>
+     */
+    public function dotErrorChildren($e) : array
+    {
+        $errors = [];
+
+        foreach ( $this->iterErrorChildren($e) as $path => $error ) {
+            $errors[implode('.', $path)] = $error;
+        }
+
+        return $errors;
     }
 
 

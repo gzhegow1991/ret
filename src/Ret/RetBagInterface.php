@@ -8,19 +8,29 @@ use Gzhegow\Ret\Ret;
 interface RetBagInterface
 {
     /**
-     * @return int|string|null
+     * @return string|null
      */
     public function push(Ret $ret, $key = null);
 
     /**
-     * @return int|string|null
+     * @return string|null
      */
     public function add($key, Ret $ret);
 
     /**
-     * @return int|string
+     * @return string
      */
     public function set($key, Ret $ret);
+
+    /**
+     * @return bool|true
+     */
+    public function delete(Ret $ret);
+
+    /**
+     * @return bool|true
+     */
+    public function deleteKey($key);
 
 
     public function get($key, bool $orNull = false) : ?Ret;
@@ -48,6 +58,13 @@ interface RetBagInterface
      * @return static
      */
     public function append(array $rets);
+
+    /**
+     * @param Ret[] $rets
+     *
+     * @return static
+     */
+    public function clear(?array $rets = null);
 
 
     public function isEmpty() : bool;
@@ -164,28 +181,28 @@ interface RetBagInterface
     /**
      * @return Ret<array, null>|Ret<null, \Gzhegow\Ret\Error\AggregateErrorInterface>|null
      */
-    public function resolved(bool $orNull = false) : ?Ret;
+    public function resolve(bool $orNull = false) : ?Ret;
 
     /**
      * @return Ret<array, null>|null
      */
-    public function resolvedOk(bool $orNull = false) : ?Ret;
+    public function resolveOk(bool $orNull = false) : ?Ret;
 
     /**
      * @return Ret<null, \Gzhegow\Ret\Error\AggregateErrorInterface>|null
      */
-    public function resolvedFail(bool $orNull = false) : ?Ret;
+    public function resolveFail(bool $orNull = false) : ?Ret;
 
 
     /**
      * @return Ret<array, null>|Ret<null, \Gzhegow\Ret\Error\ErrorInterface>|null
      */
-    public function firstFailOrResolvedOk(bool $orNull = false) : ?Ret;
+    public function firstFailOrResolve(bool $orNull = false) : ?Ret;
 
     /**
      * @return Ret<mixed, null>|Ret<null, \Gzhegow\Ret\Error\AggregateErrorInterface>|null
      */
-    public function firstOkOrResolvedFail(bool $orNull = false) : ?Ret;
+    public function firstOkOrResolve(bool $orNull = false) : ?Ret;
 
 
     public function getValues() : array;

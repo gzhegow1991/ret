@@ -410,7 +410,7 @@ $fn = function () use ($theDebug, $testN) {
         ?? $fnIsString($value)->toBag($bag)->orNull()
         ?? $fnIsArray($value)->toBag($bag)->orNull();
 
-    $ret = $bag->firstOkOrResolvedFail();
+    $ret = $bag->firstOkOrResolve();
 
     try {
         $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
@@ -432,7 +432,7 @@ $fn = function () use ($theDebug, $testN) {
         && $fnIsString($value)->toBag($bag)->isOk()
         && $fnIsArray($value)->toBag($bag)->isOk();
 
-    $ret = $bag->firstFailOrResolvedOk();
+    $ret = $bag->firstFailOrResolve();
 
     try {
         $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
@@ -454,7 +454,7 @@ $fn = function () use ($theDebug, $testN) {
         || $fnIsString($value)->toBag($bag)->isOk()
         || $fnIsArray($value)->toBag($bag)->isOk();
 
-    $ret = $bag->firstOkOrResolvedFail();
+    $ret = $bag->firstOkOrResolve();
 
     try {
         $validValue = $ret->orThrow([ 'The password is invalid', $value ]);
@@ -556,7 +556,7 @@ $fn = function () use ($theDebug, $testN) {
         ?? $fnIsStringNotEmpty($value)->toBag($bag)->orNull()
         ?? $fnIsArrayNotEmpty($value)->toBag($bag)->orNull();
 
-    $ret = $bag->firstOkOrResolvedFail();
+    $ret = $bag->firstOkOrResolve();
 
     try {
         $ret->orThrow([ 'The password is invalid', $value ]);
@@ -670,7 +670,7 @@ $fn = function () use ($theDebug, $testN) {
     $reg = \Gzhegow\Ret\Ret::bag();
     $reg->push($ret1);
     $reg->push($ret2);
-    $rret = $reg->resolvedFail();
+    $rret = $reg->resolveFail();
     $theDebug->dump_value([ 'ret1', '1', \Gzhegow\Ret\Err::isCode($ret1, 1) ]);
     $theDebug->dump_value([ 'ret2', '2', \Gzhegow\Ret\Err::isCode($ret2, 2) ]);
     $theDebug->dump_value([ 'rret', '1', \Gzhegow\Ret\Err::isCode($rret, 1) ]);
@@ -692,7 +692,7 @@ $fn = function () use ($theDebug, $testN) {
         $reg = \Gzhegow\Ret\Ret::bag();
         $reg->push($ret1);
         $reg->push($ret2);
-        $rret = $reg->resolvedFail();
+        $rret = $reg->resolveFail();
         $theDebug->dump_value([ 'ret1', 'ERR_FAIL_1', \Gzhegow\Ret\Err::isCode($ret1, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1) ]);
         $theDebug->dump_value([ 'ret2', 'ERR_FAIL_2', \Gzhegow\Ret\Err::isCode($ret2, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_2) ]);
         $theDebug->dump_value([ 'rret', 'ERR_FAIL_1', \Gzhegow\Ret\Err::isCode($rret, \Gzhegow\Ret\Tests\MyEnum::ERR_FAIL_1) ]);
@@ -773,7 +773,7 @@ $fn = function () use ($theDebug, $testN) {
         ?? $fnFopen([ '2.txt', 'r' ])->toBag($bag)->orNull()
         ?? $fnFopen([ '3.txt', 'r' ])->toBag($bag)->orNull();
 
-    $ret = $bag->firstOkOrResolvedFail();
+    $ret = $bag->firstOkOrResolve();
 
     try {
         $ret->orThrow();
@@ -796,7 +796,7 @@ $fn = function () use ($theDebug, $testN) {
         ?? $fnFopen([ __FILE__, 'r' ])->toBag($bag)->orNull()
         ?? $fnFopen([ '3.txt', 'r' ])->toBag($bag)->orNull();
 
-    $ret = $bag->firstOkOrResolvedFail();
+    $ret = $bag->firstOkOrResolve();
 
     $fh = $ret->orThrow(); // > there's no throw cause of __FILE__ is existing one
     $theDebug->dump_value($fh);

@@ -149,6 +149,42 @@ class Ret implements RetInterface
         return $this;
     }
 
+    /**
+     * @return static
+     */
+    public function toBagFirstOk(RetBagInterface $registry, $key = null)
+    {
+        if ( $registry->hasOk() ) {
+            return $this;
+        }
+
+        if ( $this->isOk() ) {
+            $registry->clear();
+        }
+
+        $registry->push($this, $key);
+
+        return $this;
+    }
+
+    /**
+     * @return static
+     */
+    public function toBagFirstFail(RetBagInterface $registry, $key = null)
+    {
+        if ( $registry->hasFail() ) {
+            return $this;
+        }
+
+        if ( $this->isFail() ) {
+            $registry->clear();
+        }
+
+        $registry->push($this, $key);
+
+        return $this;
+    }
+
 
     public function isEmpty() : bool
     {

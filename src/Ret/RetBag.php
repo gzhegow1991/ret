@@ -11,7 +11,7 @@ use Gzhegow\Ret\Exception\RuntimeException;
 class RetBag implements RetBagInterface
 {
     /**
-     * @var Ret[]
+     * @var array<string, Ret>
      */
     protected $rets = [];
 
@@ -30,13 +30,13 @@ class RetBag implements RetBagInterface
 
 
     /**
-     * @return int|string|null
+     * @return string|null
      */
     public function push(Ret $ret, $key = null)
     {
-        if ( '' === $key ) $key = null;
-
-        $key = $key ?? spl_object_hash($ret);
+        if ( ! (is_string($key) && ('' !== $key)) ) {
+            $key = spl_object_hash($ret);
+        }
 
         if ( isset($this->rets[$key]) ) {
             return null;
@@ -48,13 +48,13 @@ class RetBag implements RetBagInterface
     }
 
     /**
-     * @return int|string|null
+     * @return string|null
      */
     public function add($key, Ret $ret)
     {
-        if ( '' === $key ) $key = null;
-
-        $key = $key ?? spl_object_hash($ret);
+        if ( ! (is_string($key) && ('' !== $key)) ) {
+            $key = spl_object_hash($ret);
+        }
 
         if ( isset($this->rets[$key]) ) {
             return null;
@@ -66,17 +66,43 @@ class RetBag implements RetBagInterface
     }
 
     /**
-     * @return int|string
+     * @return string
      */
     public function set($key, Ret $ret)
     {
-        if ( '' === $key ) $key = null;
-
-        $key = $key ?? spl_object_hash($ret);
+        if ( ! (is_string($key) && ('' !== $key)) ) {
+            $key = spl_object_hash($ret);
+        }
 
         $this->rets[$key] = $ret;
 
         return array_key_last($this->rets);
+    }
+
+    /**
+     * @return bool|true
+     */
+    public function delete(Ret $ret)
+    {
+        return $this->deleteKey(spl_object_hash($ret));
+    }
+
+    /**
+     * @return bool|true
+     */
+    public function deleteKey($key)
+    {
+        if ( ! (is_string($key) && ('' !== $key)) ) {
+            return false;
+        }
+
+        if ( array_key_exists($key, $this->rets) ) {
+            unset($this->rets[$key]);
+
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -153,9 +179,9 @@ class RetBag implements RetBagInterface
                 );
             }
 
-            if ( '' === $i ) $i = null;
-
-            $i = $i ?? spl_object_hash($ret);
+            if ( ! (is_string($i) && ('' !== $i)) ) {
+                $i = spl_object_hash($ret);
+            }
 
             $list[$i] = $ret;
         }
@@ -181,9 +207,9 @@ class RetBag implements RetBagInterface
                 );
             }
 
-            if ( '' === $i ) $i = null;
-
-            $i = $i ?? spl_object_hash($ret);
+            if ( ! (is_string($i) && ('' !== $i)) ) {
+                $i = spl_object_hash($ret);
+            }
 
             $list[$i] = $ret;
         }
@@ -209,14 +235,44 @@ class RetBag implements RetBagInterface
                 );
             }
 
-            if ( '' === $i ) $i = null;
-
-            $i = $i ?? spl_object_hash($ret);
+            if ( ! (is_string($i) && ('' !== $i)) ) {
+                $i = spl_object_hash($ret);
+            }
 
             $list[$i] = $ret;
         }
 
         $this->rets += $list;
+
+        return $this;
+    }
+
+    /**
+     * @param Ret[] $rets
+     *
+     * @return static
+     */
+    public function clear(?array $rets = null)
+    {
+        if ( null === $rets ) {
+            $this->rets = [];
+
+        } else {
+            foreach ( $rets as $i => $ret ) {
+                if ( ! $ret instanceof Ret ) {
+                    throw new LogicException(
+                        [ 'Each of `rets` should be instance of: ' . Ret::class, $i, $rets ]
+                    );
+                }
+
+                if ( is_string($i) && ('' !== $i) ) {
+                    unset($this->rets[$i]);
+
+                } else {
+                    unset($this->rets[spl_object_hash($ret)]);
+                }
+            }
+        }
 
         return $this;
     }
@@ -679,9 +735,45 @@ class RetBag implements RetBagInterface
 
 
     /**
+     * @return Ret<array, null>|null
+     */
+    public function resolveOk(bool $orNull = false) : ?Ret
+    {
+        if ( $this->isOk() ) {
+            return Ret::ok($this->getValues());
+        }
+
+        if ( ! $orNull ) {
+            throw new LogicException(
+                [ 'Unable to `resolvedOk`: The `registry` is empty or contain errors', $this ]
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * @return Ret<null, \Gzhegow\Ret\Error\AggregateErrorInterface>|null
+     */
+    public function resolveFail(bool $orNull = false) : ?Ret
+    {
+        if ( $this->isFail() ) {
+            return Ret::fail(Err::aggregate($this->getErrors()));
+        }
+
+        if ( ! $orNull ) {
+            throw new LogicException(
+                [ 'Unable to `resolvedFail`: The `registry` is empty or contain values', $this ]
+            );
+        }
+
+        return null;
+    }
+
+    /**
      * @return Ret<array, null>|Ret<null, \Gzhegow\Ret\Error\AggregateErrorInterface>|null
      */
-    public function resolved(bool $orNull = false) : ?Ret
+    public function resolve(bool $orNull = false) : ?Ret
     {
         [ $firstOk, $firstFail ] = $this->firstPair();
 
@@ -716,47 +808,11 @@ class RetBag implements RetBagInterface
         return $ret;
     }
 
-    /**
-     * @return Ret<array, null>|null
-     */
-    public function resolvedOk(bool $orNull = false) : ?Ret
-    {
-        if ( $this->isOk() ) {
-            return Ret::ok($this->getValues());
-        }
-
-        if ( ! $orNull ) {
-            throw new LogicException(
-                [ 'Unable to `resolvedOk`: The `registry` is empty or contain errors', $this ]
-            );
-        }
-
-        return null;
-    }
-
-    /**
-     * @return Ret<null, \Gzhegow\Ret\Error\AggregateErrorInterface>|null
-     */
-    public function resolvedFail(bool $orNull = false) : ?Ret
-    {
-        if ( $this->isFail() ) {
-            return Ret::fail(Err::aggregate($this->getErrors()));
-        }
-
-        if ( ! $orNull ) {
-            throw new LogicException(
-                [ 'Unable to `resolvedFail`: The `registry` is empty or contain values', $this ]
-            );
-        }
-
-        return null;
-    }
-
 
     /**
      * @return Ret<array, null>|Ret<null, \Gzhegow\Ret\Error\ErrorInterface>|null
      */
-    public function firstFailOrResolvedOk(bool $orNull = false) : ?Ret
+    public function firstFailOrResolve(bool $orNull = false) : ?Ret
     {
         [ $firstOk, $firstFail ] = $this->firstPair();
 
@@ -769,7 +825,7 @@ class RetBag implements RetBagInterface
 
         if ( ! $orNull ) {
             throw new LogicException(
-                [ 'Unable to `firstFailOrResolvedOk`: The `registry` is empty', $this ]
+                [ 'Unable to `firstFailOrResolved`: The `registry` is empty', $this ]
             );
         }
 
@@ -779,7 +835,7 @@ class RetBag implements RetBagInterface
     /**
      * @return Ret<mixed, null>|Ret<null, \Gzhegow\Ret\Error\AggregateErrorInterface>|null
      */
-    public function firstOkOrResolvedFail(bool $orNull = false) : ?Ret
+    public function firstOkOrResolve(bool $orNull = false) : ?Ret
     {
         [ $firstOk, $firstFail ] = $this->firstPair();
 
@@ -792,7 +848,7 @@ class RetBag implements RetBagInterface
 
         if ( ! $orNull ) {
             throw new LogicException(
-                [ 'Unable to `firstOkOrResolvedFail`: The `registry` is empty', $this ]
+                [ 'Unable to `firstOkOrResolved`: The `registry` is empty', $this ]
             );
         }
 

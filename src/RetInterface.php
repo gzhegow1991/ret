@@ -18,6 +18,17 @@ interface RetInterface
      */
     public function toBag(RetBagInterface $registry, $key = null);
 
+    /**
+     * @return static
+     */
+    public function toBagFirstOk(RetBagInterface $registry, $key = null);
+
+    /**
+     * @return static
+     */
+    public function toBagFirstFail(RetBagInterface $registry, $key = null);
+
+
 
     public function isEmpty() : bool;
 

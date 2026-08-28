@@ -1,7 +1,8 @@
 <?php
 
-namespace Gzhegow\Ret\Ret;
+namespace Gzhegow\Ret;
 
+use Gzhegow\Ret\Ret\RetBagInterface;
 use Gzhegow\Ret\Error\ErrorInterface;
 use Gzhegow\Ret\Exception\AggregateRuntimeException;
 

@@ -2,7 +2,6 @@
 
 namespace Gzhegow\Ret;
 
-use Gzhegow\Ret\Ret\RetInterface;
 use Gzhegow\Ret\Ret\RetBagInterface;
 use Gzhegow\Ret\Error\ErrorInterface;
 use Gzhegow\Ret\Ret\RetWrapperInterface;

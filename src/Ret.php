@@ -53,7 +53,7 @@ class Ret implements RetInterface
 
         } else {
             throw new LogicException(
-                [ 'Unable to `new`: attempt to create an instance of "Ret" without error and value', $valueError ]
+                [ 'Unable to `new`: attempt to create `Ret` instance without error and value', $valueError ]
             );
         }
 

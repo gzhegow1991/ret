@@ -27,6 +27,45 @@ class Ret implements RetInterface
     protected $error = [];
 
 
+    /**
+     * @param \Gzhegow\Ret\RetFacadeInterface $ret
+     * @param array{ 0?: T, 1?: TT }          $valueError
+     *
+     * @return static
+     * @noinspection PhpUnusedParameterInspection
+     */
+    public static function new(RetFacadeInterface $ret, array $valueError = [])
+    {
+        $instance = new static();
+
+        $hasValue = array_key_exists(0, $valueError);
+        $hasError = array_key_exists(1, $valueError);
+
+        if ( $hasValue && $hasError ) {
+            throw new LogicException(
+                [ 'Unable to `new`: attempt to create `Ret` instance with both error and value', $valueError ]
+            );
+
+        } elseif ( $hasValue ) {
+            $instance->value[0] = $valueError[0];
+
+        } elseif ( $hasError ) {
+            $instance->error[0] = $valueError[1];
+
+        } else {
+            throw new LogicException(
+                [ 'Unable to `new`: attempt to create an instance of "Ret" without error and value', $valueError ]
+            );
+        }
+
+        return $instance;
+    }
+
+    protected function __construct()
+    {
+    }
+
+
     public static function bag() : RetBagInterface
     {
         return static::$facade->bag();
@@ -41,28 +80,6 @@ class Ret implements RetInterface
     public static function wrap($value, ?RetWrapperInterface $wrapper = null) : Ret
     {
         return static::$facade->wrap($value, $wrapper);
-    }
-
-
-    /**
-     * @param \Gzhegow\Ret\RetFacadeInterface $ret
-     * @param array{ 0?: T, 1?: TT }          $valueError
-     *
-     * @return static
-     * @noinspection PhpUnusedParameterInspection
-     */
-    public static function new(RetFacadeInterface $ret, array $valueError = [])
-    {
-        $instance = new static();
-
-        if ( isset($valueError[0]) ) $instance->value[0] = $valueError[0];
-        if ( isset($valueError[1]) ) $instance->error[0] = $valueError[1];
-
-        return $instance;
-    }
-
-    protected function __construct()
-    {
     }
 
 

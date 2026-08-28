@@ -14,7 +14,7 @@ I present to you the Result<T, E> concept in PHP. What is it for? You write a si
 
 It comes with errors, fine-tuned exceptions for logging and outputting them, an ErrorBag for convenient accumulation and tag management, and a Wrapper for legacy code.
 
-In addition, you can trigger Err::debug(true), and all your errors will create an underlying exception upon creation (without throwing it). This grants you a full stack trace right down to where your issue originated.
+In addition, you can trigger `Err::debug(true)`, and all your errors will create an underlying exception upon creation (without throwing it). This grants you a full stack trace right down to where your issue originated.
 
 Check out the tests; they will give you something to remember.
 
